@@ -1,4 +1,4 @@
-# UUID / ULID
+﻿# UUID / ULID
 
 - [Introduction](#introduction)
 - [HasUuids](#hasuuids)
@@ -13,7 +13,7 @@
 
 ## Introduction
 
-By default, Orion assumes an auto-incrementing integer primary key. The `HasUuids` and `HasUlids` mixins automatically generate a UUID or ULID value for the `id` column (and optionally other columns) before INSERT — no database trigger or sequence required.
+By default, Orion assumes an auto-incrementing integer primary key. The `HasUuids` and `HasUlids` mixins automatically generate a UUID or ULID value for the `id` column (and optionally other columns) before INSERT â€” no database trigger or sequence required.
 
 ---
 
@@ -22,7 +22,7 @@ By default, Orion assumes an auto-incrementing integer primary key. The `HasUuid
 Apply `HasUuids` to generate a random UUID v4 as the primary key:
 
 ```ts
-import { Model, HasUuids, table, fillable } from 'orion';
+import { Model, HasUuids, table, fillable } from '@wrsouza/orion';
 
 @table('posts')
 @fillable(['title', 'body'])
@@ -60,7 +60,7 @@ console.log(invite.token); // different UUID
 
 ### Custom UUID Generator
 
-Override `newUniqueId()` to use a different generator — for example, UUID v7 (time-sortable):
+Override `newUniqueId()` to use a different generator â€” for example, UUID v7 (time-sortable):
 
 ```ts
 import { v7 as uuidv7 } from 'uuid';
@@ -79,10 +79,10 @@ class Event extends HasUuids(Model) {
 
 Apply `HasUlids` to generate a ULID (Universally Unique Lexicographically Sortable Identifier) as the primary key. ULIDs are 26-character base32 strings and sort chronologically, making them index-friendly.
 
-`HasUlids` has no external dependencies — it uses `crypto.getRandomValues()` from the Node.js built-in `crypto` module.
+`HasUlids` has no external dependencies â€” it uses `crypto.getRandomValues()` from the Node.js built-in `crypto` module.
 
 ```ts
-import { Model, HasUlids, table, fillable } from 'orion';
+import { Model, HasUlids, table, fillable } from '@wrsouza/orion';
 
 @table('orders')
 @fillable(['total', 'status'])
@@ -119,7 +119,7 @@ For UUID primary keys:
 
 ```ts
 await Schema.create('posts', (table) => {
-  table.uuid('id').primary();         // UUID PK — no default, Orion fills it
+  table.uuid('id').primary();         // UUID PK â€” no default, Orion fills it
   table.string('title');
   table.timestamps();
 });
@@ -129,7 +129,7 @@ For ULID primary keys:
 
 ```ts
 await Schema.create('orders', (table) => {
-  table.ulid('id').primary();        // ULID — CHAR(26)
+  table.ulid('id').primary();        // ULID â€” CHAR(26)
   table.decimal('total', 10, 2);
   table.timestamps();
 });
@@ -151,7 +151,7 @@ await Schema.create('comments', (table) => {
 
 ## Relationships with UUID / ULID Keys
 
-Relationships work identically — Orion infers the correct key types:
+Relationships work identically â€” Orion infers the correct key types:
 
 ```ts
 @table('posts')

@@ -1,4 +1,4 @@
-# Relationships
+﻿# Relationships
 
 - [Introduction](#introduction)
 - [Defining Relationships](#defining-relationships)
@@ -36,14 +36,14 @@
 
 ## Introduction
 
-Relationships are defined as methods on a model that return a `Relation` object. Orion infers foreign key names from class names by convention (`hasMany(Post)` → `post_id`, `belongsToMany(Role)` → pivot table `role_user`). All keys can be overridden explicitly.
+Relationships are defined as methods on a model that return a `Relation` object. Orion infers foreign key names from class names by convention (`hasMany(Post)` â†’ `post_id`, `belongsToMany(Role)` â†’ pivot table `role_user`). All keys can be overridden explicitly.
 
 ---
 
 ## Defining Relationships
 
 ```ts
-import { Model, HasOne, HasMany, BelongsTo, BelongsToMany, table, fillable } from 'orion';
+import { Model, HasOne, HasMany, BelongsTo, BelongsToMany, table, fillable } from '@wrsouza/orion';
 
 @table('users')
 @fillable(['name', 'email'])
@@ -91,14 +91,14 @@ const profile = await user.profile().getResults();
 class User extends Model {
   profile(): HasOne<Profile> {
     return this.hasOne(Profile);
-    // Orion infers: profile.user_id → users.id
+    // Orion infers: profile.user_id â†’ users.id
   }
 }
 
 class Profile extends Model {
   user(): BelongsTo<User> {
     return this.belongsTo(User);
-    // Orion infers: profiles.user_id → users.id
+    // Orion infers: profiles.user_id â†’ users.id
   }
 }
 ```
@@ -125,7 +125,7 @@ const user    = await profile.user().getResults();
 class Post extends Model {
   comments(): HasMany<Comment> {
     return this.hasMany(Comment);
-    // Orion infers: comments.post_id → posts.id
+    // Orion infers: comments.post_id â†’ posts.id
   }
 }
 ```
@@ -259,13 +259,13 @@ await user.roles().detach(1);
 await user.roles().detach([1, 2]);
 await user.roles().detach(); // detach all
 
-// Sync — detach any not in the list, attach any missing
+// Sync â€” detach any not in the list, attach any missing
 await user.roles().sync([1, 2, 3]);
 await user.roles().sync([1, 2], false); // don't detach missing (syncWithoutDetaching)
 await user.roles().syncWithoutDetaching([1, 2]);
 await user.roles().syncWithPivotValues([1, 2], { approved: true });
 
-// Toggle — attach if detached, detach if attached
+// Toggle â€” attach if detached, detach if attached
 await user.roles().toggle([1, 2, 3]);
 
 // Update an existing pivot row
@@ -279,7 +279,7 @@ await user.roles().updateExistingPivot(1, { approved: false });
 Provides access to a distant relation through an intermediate model.
 
 ```ts
-// Mechanic → Car → Owner
+// Mechanic â†’ Car â†’ Owner
 class Mechanic extends Model {
   carOwner(): HasOneThrough<Owner> {
     return this.hasOneThrough(
@@ -299,7 +299,7 @@ class Mechanic extends Model {
 ## Has Many Through
 
 ```ts
-// Country → User → Post
+// Country â†’ User â†’ Post
 class Country extends Model {
   posts(): HasManyThrough<Post> {
     return this.hasManyThrough(Post, User);
@@ -323,7 +323,7 @@ A single model belongs to more than one other model using a single association.
 class Post extends Model {
   image(): MorphOne<Image> {
     return this.morphOne(Image, 'imageable');
-    // → images.imageable_id + images.imageable_type
+    // â†’ images.imageable_id + images.imageable_type
   }
 }
 
@@ -396,7 +396,7 @@ class Tag extends Model {
 By default, Orion stores the full class name in the `_type` column. Use `MorphMap` to store shorter aliases:
 
 ```ts
-import { MorphMap } from 'orion';
+import { MorphMap } from '@wrsouza/orion';
 
 MorphMap.register({
   post:  Post,
@@ -416,7 +416,7 @@ Register globally at bootstrap before any polymorphic relations are used.
 
 ## One of Many
 
-`latestOfMany`, `oldestOfMany`, and `ofMany` turn a `hasMany` into a `hasOne` that returns a specific record — the latest, oldest, or one matching a custom criteria.
+`latestOfMany`, `oldestOfMany`, and `ofMany` turn a `hasMany` into a `hasOne` that returns a specific record â€” the latest, oldest, or one matching a custom criteria.
 
 ```ts
 class User extends Model {
@@ -453,7 +453,7 @@ await Post.has('comments').get();
 // Posts with 3 or more comments
 await Post.has('comments', '>=', 3).get();
 
-// Nested — posts that have comments with at least one image
+// Nested â€” posts that have comments with at least one image
 await Post.has('comments.images').get();
 
 // With constraint
@@ -479,7 +479,7 @@ await Post.whereDoesntHave('comments').orWhereDoesntHave('spam_reports').get();
 
 ### Inline Constraints (whereRelation)
 
-A shorthand for single-column constraints on a relation — no need for a full `whereHas` closure:
+A shorthand for single-column constraints on a relation â€” no need for a full `whereHas` closure:
 
 ```ts
 await Post.whereRelation('comments', 'approved', true).get();
@@ -508,7 +508,7 @@ await Comment.whereHasMorph('commentable', [Post], (q) => {
   q.where('published', true);
 }).get();
 
-// Type-aware constraint — different filter per type
+// Type-aware constraint â€” different filter per type
 await Comment.whereHasMorph('commentable', [Post, Video], (q, type) => {
   const col = type === 'App\\Models\\Post' ? 'content' : 'title';
   q.where(col, 'like', 'code%');
@@ -581,7 +581,7 @@ await Post.withMin('comments', 'votes').get();
 await Post.withMax('comments', 'votes').get();
 await Post.withAvg('reviews', 'rating').get();
 
-// Boolean — has any related?
+// Boolean â€” has any related?
 await Post.withExists('comments').get();
 post.getRelation<boolean>('comments_exists');
 ```
@@ -690,7 +690,7 @@ Model.preventLazyLoading(process.env.NODE_ENV !== 'production');
 ### HasOne / HasMany
 
 ```ts
-// create — new related model, auto-sets FK, saves immediately
+// create â€” new related model, auto-sets FK, saves immediately
 const comment = await post.comments().create({ body: 'Great post!' });
 
 // createMany
@@ -699,7 +699,7 @@ await post.comments().createMany([
   { body: 'Second comment' },
 ]);
 
-// save — associate and save an existing model
+// save â€” associate and save an existing model
 const c = new Comment();
 c.body = 'Hello';
 await post.comments().save(c);
@@ -707,7 +707,7 @@ await post.comments().save(c);
 // saveMany
 await post.comments().saveMany([c1, c2]);
 
-// firstOrCreate — find or create within the relation
+// firstOrCreate â€” find or create within the relation
 const comment = await post.comments().firstOrCreate(
   { body: 'Pinned comment' },
   { pinned: true }
@@ -723,12 +723,12 @@ await post.comments().updateOrCreate(
 ### BelongsTo
 
 ```ts
-// associate — set FK and save
+// associate â€” set FK and save
 await comment.post().associate(post);
 comment._attributes; // { ..., post_id: 1 }
 await comment.save();
 
-// dissociate — set FK to null
+// dissociate â€” set FK to null
 comment.post().dissociate();
 await comment.save();
 ```
@@ -750,7 +750,7 @@ class Comment extends Model {
 }
 
 await comment.save();
-// → also executes UPDATE posts SET updated_at = NOW() WHERE id = ?
+// â†’ also executes UPDATE posts SET updated_at = NOW() WHERE id = ?
 ```
 
 Manual touch:
@@ -764,11 +764,11 @@ await comment.touch('post');   // update parent post's updated_at
 
 ## Scoped Relationships
 
-Pre-populate attributes or conditions on a relation — creating through it automatically sets those values:
+Pre-populate attributes or conditions on a relation â€” creating through it automatically sets those values:
 
 ```ts
 class Post extends Model {
-  // pre-set approved = true — always sets this when creating through this relation
+  // pre-set approved = true â€” always sets this when creating through this relation
   approvedComments(): HasMany<Comment> {
     return this.hasMany(Comment).withAttributes({ approved: true });
   }
@@ -777,7 +777,7 @@ class Post extends Model {
   recentComments(): HasMany<Comment> {
     return this.hasMany(Comment).withAttributes(
       { created_at: lastWeek },
-      false  // asConditions = false → don't apply on create
+      false  // asConditions = false â†’ don't apply on create
     );
   }
 }
@@ -791,7 +791,7 @@ const comment = await post.approvedComments().create({ body: 'Nice post!' });
 
 ## Dynamic Relationships
 
-Register a relation at runtime — useful for plugins or decoupled modules:
+Register a relation at runtime â€” useful for plugins or decoupled modules:
 
 ```ts
 User.resolveRelationUsing('latestOrder', (user) =>

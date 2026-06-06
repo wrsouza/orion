@@ -1,10 +1,10 @@
----
+﻿---
 layout: home
 
 hero:
   name: "Orion"
   text: "Active Record ORM for TypeScript"
-  tagline: Eloquent-inspired. Five database drivers. Built from scratch — no Knex, no TypeORM.
+  tagline: Eloquent-inspired. Five database drivers. Built from scratch â€” no Knex, no TypeORM.
   image:
     src: /logo.svg
     alt: Orion
@@ -17,29 +17,29 @@ hero:
       link: https://github.com/wrsouza/orion
 
 features:
-  - icon: ✨
+  - icon: âœ¨
     title: Eloquent-inspired API
-    details: If you know Laravel's Eloquent, you already know Orion. Same fluent API, same conventions — in TypeScript.
+    details: If you know Laravel's Eloquent, you already know Orion. Same fluent API, same conventions â€” in TypeScript.
 
-  - icon: 🗄️
+  - icon: ðŸ—„ï¸
     title: Five Database Drivers
-    details: PostgreSQL, MySQL, MariaDB, SQLite, and SQL Server — all with the same API, zero configuration switching.
+    details: PostgreSQL, MySQL, MariaDB, SQLite, and SQL Server â€” all with the same API, zero configuration switching.
 
-  - icon: 🔗
+  - icon: ðŸ”—
     title: Full Relationship Support
     details: hasOne, hasMany, belongsTo, belongsToMany, and all polymorphic variants. Eager loading, pivot ops, morph maps.
 
-  - icon: ⚡
+  - icon: âš¡
     title: Fluent Query Builder
     details: 50+ methods including subqueries, raw expressions, aggregates, JSON columns, and nested transactions.
 
-  - icon: 🏭
+  - icon: ðŸ­
     title: Model Factories
     details: States, sequences, relationship factories, afterMaking / afterCreating hooks, and recycle() for seeding and testing.
 
-  - icon: 🔒
+  - icon: ðŸ”’
     title: TypeScript-first
-    details: Decorators, generics, and strict types throughout. No magic reflection — your IDE knows everything.
+    details: Decorators, generics, and strict types throughout. No magic reflection â€” your IDE knows everything.
 ---
 
 ## Quick start

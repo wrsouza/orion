@@ -1,4 +1,4 @@
-# Schema & Migrations
+﻿# Schema & Migrations
 
 - [Introduction](#introduction)
 - [Generating Migrations](#generating-migrations)
@@ -48,7 +48,7 @@ npx orion make:migration create_role_user_table
 Generated file (`20240601120000_create_users_table.ts`):
 
 ```ts
-import { Migration, Blueprint } from 'orion';
+import { Migration, Blueprint } from '@wrsouza/orion';
 
 export default class CreateUsersTable extends Migration {
   async up(): Promise<void> {
@@ -69,7 +69,7 @@ export default class CreateUsersTable extends Migration {
 ## Migration Structure
 
 ```ts
-import { Migration, Blueprint, Schema } from 'orion';
+import { Migration, Blueprint, Schema } from '@wrsouza/orion';
 
 export default class CreatePostsTable extends Migration {
   async up(): Promise<void> {
@@ -151,7 +151,7 @@ npx orion migrate:status
 
 ```
   Status    Batch    Migration
-  ──────────────────────────────────────────────────────────────────
+  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Ran       1        20240601120000_create_users_table
   Ran       1        20240601120001_create_posts_table
   Ran       2        20240605090000_add_avatar_to_users
@@ -165,7 +165,7 @@ npx orion migrate:status
 ### Creating Tables
 
 ```ts
-import { Schema, Blueprint } from 'orion';
+import { Schema, Blueprint } from '@wrsouza/orion';
 
 await Schema.create('orders', (table: Blueprint) => {
   table.id();
@@ -188,7 +188,7 @@ await Schema.table('users', (table: Blueprint) => {
   table.string('phone', 20).nullable();
   table.string('avatar_url').nullable();
 
-  // Modify (driver-dependent — not all drivers support all modifications)
+  // Modify (driver-dependent â€” not all drivers support all modifications)
   table.text('bio').nullable().change();
 
   // Drop
@@ -244,10 +244,10 @@ const columns = await Schema.getColumnListing('users');   // string[]
 | `time(name)` | `TIME` | `TIME` | `TEXT` | `TIME` |
 | `binary(name)` | `BYTEA` | `BLOB` | `BLOB` | `VARBINARY(MAX)` |
 | `enum(name, values[])` | `VARCHAR CHECK(...)` | `ENUM(...)` | `TEXT CHECK(...)` | `NVARCHAR CHECK(...)` |
-| `timestamps()` | — | — | — | — |
-| `timestampsTz()` | — | — | — | — |
-| `softDeletes(col?)` | — | — | — | — |
-| `softDeletesTz(col?)` | — | — | — | — |
+| `timestamps()` | â€” | â€” | â€” | â€” |
+| `timestampsTz()` | â€” | â€” | â€” | â€” |
+| `softDeletes(col?)` | â€” | â€” | â€” | â€” |
+| `softDeletesTz(col?)` | â€” | â€” | â€” | â€” |
 | `foreignId(name)` | `BIGINT` | `BIGINT UNSIGNED` | `INTEGER` | `BIGINT` |
 | `foreignUuid(name)` | `UUID` | `CHAR(36)` | `TEXT` | `UNIQUEIDENTIFIER` |
 | `morphs(name)` | `{name}_type VARCHAR + {name}_id BIGINT + index` | same | same | same |
@@ -348,7 +348,7 @@ Supported ON DELETE / ON UPDATE actions:
 Access the underlying connection for raw queries or transactions without using the model layer:
 
 ```ts
-import { ConnectionManager } from 'orion';
+import { ConnectionManager } from '@wrsouza/orion';
 
 // Via URL
 ConnectionManager.addConnectionUrl('default', 'postgres://postgres:secret@localhost:5432/myapp');

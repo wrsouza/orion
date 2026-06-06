@@ -1,4 +1,4 @@
-# Scopes & Events
+﻿# Scopes & Events
 
 - [Query Scopes](#query-scopes)
   - [Global Scopes](#global-scopes)
@@ -27,7 +27,7 @@ Global scopes automatically add constraints to every query for a model. They are
 Implement the `Scope` interface:
 
 ```ts
-import { Scope, ModelBuilder } from 'orion';
+import { Scope, ModelBuilder } from '@wrsouza/orion';
 
 class ActiveScope implements Scope {
   apply(builder: ModelBuilder<any>): void {
@@ -47,7 +47,7 @@ class TenantScope implements Scope {
 Register with `@scopedBy`:
 
 ```ts
-import { Model, table, scopedBy } from 'orion';
+import { Model, table, scopedBy } from '@wrsouza/orion';
 
 @table('users')
 @scopedBy([ActiveScope])
@@ -75,7 +75,7 @@ await User.withoutGlobalScopes().get();
 Local scopes are reusable query snippets you chain onto `Model.query()`. Decorate a method with `@scope`:
 
 ```ts
-import { Model, table, scope, ModelBuilder } from 'orion';
+import { Model, table, scope, ModelBuilder } from '@wrsouza/orion';
 
 @table('users')
 class User extends Model {
@@ -185,7 +185,7 @@ class User extends Model {
 
     // Log every update
     this.updated((user) => {
-      console.log(`User ${user.id} updated — changed: ${JSON.stringify(user.getChanges())}`);
+      console.log(`User ${user.id} updated â€” changed: ${JSON.stringify(user.getChanges())}`);
     });
   }
 }
@@ -221,7 +221,7 @@ Return `false` from a `-ing` listener to cancel the operation:
 User.deleting((user) => {
   if (user._attributes.is_admin) {
     console.log('Cannot delete an admin user');
-    return false; // cancels delete — no exception, just returns false from delete()
+    return false; // cancels delete â€” no exception, just returns false from delete()
   }
 });
 
@@ -241,7 +241,7 @@ For complex event handling, observers group all event listeners for a model into
 ### Defining an Observer
 
 ```ts
-import { Observer } from 'orion';
+import { Observer } from '@wrsouza/orion';
 
 class UserObserver implements Observer<User> {
   saving(user: User): void | false {
@@ -277,7 +277,7 @@ class UserObserver implements Observer<User> {
 }
 ```
 
-All observer methods are optional — implement only the events you need.
+All observer methods are optional â€” implement only the events you need.
 
 ### Registering Observers
 
@@ -289,9 +289,9 @@ User.observe([new UserObserver(), new AuditObserver()]);
 Or at application bootstrap:
 
 ```ts
-import { ConnectionManager } from 'orion';
+import { ConnectionManager } from '@wrsouza/orion';
 
-// Via URL or explicit config — then register observers
+// Via URL or explicit config â€” then register observers
 ConnectionManager.addConnectionUrl('default', process.env.DATABASE_URL!);
 // or: ConnectionManager.addConnection('default', config);
 
@@ -305,7 +305,7 @@ Post.observe(new PostObserver());
 Register observers declaratively alongside the model definition:
 
 ```ts
-import { observedBy } from 'orion';
+import { observedBy } from '@wrsouza/orion';
 
 @observedBy([UserObserver, AuditObserver])
 @table('users')
@@ -333,10 +333,10 @@ Quiet variants bypass all static hooks and observers.
 
 ## withoutEvents
 
-Suppress all model events for a block of code — events are re-enabled automatically after the callback returns:
+Suppress all model events for a block of code â€” events are re-enabled automatically after the callback returns:
 
 ```ts
-import { withoutEvents } from 'orion';
+import { withoutEvents } from '@wrsouza/orion';
 
 await User.withoutEvents(async () => {
   await user.save();           // no saving/saved events
@@ -346,7 +346,7 @@ await User.withoutEvents(async () => {
 // Events are re-enabled here
 ```
 
-`withoutEvents` is safely nestable — the inner block restores the outer state.
+`withoutEvents` is safely nestable â€” the inner block restores the outer state.
 
 Equivalent for a single model class:
 

@@ -1,4 +1,4 @@
-# Mutators & Casting
+﻿# Mutators & Casting
 
 - [Introduction](#introduction)
 - [Accessors](#accessors)
@@ -13,8 +13,8 @@
   - [Encrypted Casting](#encrypted-casting)
   - [Query-Time Casting](#query-time-casting)
 - [Custom Casts](#custom-casts)
-  - [CastClass — Bidirectional](#castclass--bidirectional)
-  - [CastsInboundAttributes — Write-Only](#castsinboundattributes--write-only)
+  - [CastClass â€” Bidirectional](#castclass--bidirectional)
+  - [CastsInboundAttributes â€” Write-Only](#castsinboundattributes--write-only)
   - [Castable Value Objects](#castable-value-objects)
   - [Cast Parameters](#cast-parameters)
   - [Comparing Cast Values](#comparing-cast-values)
@@ -34,7 +34,7 @@ Accessors, mutators, and attribute casting let you transform values when reading
 An accessor computes a value from model attributes when the property is read. Define a getter and decorate it with `@accessor`:
 
 ```ts
-import { Model, table, accessor, appends } from 'orion';
+import { Model, table, accessor, appends } from '@wrsouza/orion';
 
 @table('users')
 @appends(['full_name'])
@@ -68,7 +68,7 @@ user.email; // always lowercase, regardless of DB value
 
 ### Accessor Caching
 
-By default, object-returning accessors are cached per-instance — changes to the returned object are synced back before save. For expensive primitive computations, opt into caching explicitly:
+By default, object-returning accessors are cached per-instance â€” changes to the returned object are synced back before save. For expensive primitive computations, opt into caching explicitly:
 
 ```ts
 @table('users')
@@ -85,7 +85,7 @@ class User extends Model {
 Disable object caching (when you want a fresh value object on each access):
 
 ```ts
-import { withoutObjectCaching } from 'orion';
+import { withoutObjectCaching } from '@wrsouza/orion';
 
 @table('users')
 class User extends Model {
@@ -135,7 +135,7 @@ user.withoutAppends().toArray();
 A mutator transforms a value before it is stored in `_attributes`. Define a setter and decorate it with `@mutator`:
 
 ```ts
-import { Model, table, mutator } from 'orion';
+import { Model, table, mutator } from '@wrsouza/orion';
 import bcrypt from 'bcrypt';
 
 @table('users')
@@ -149,11 +149,11 @@ class User extends Model {
 }
 
 const user = new User();
-user.password = 'secret';   // triggers mutator — stored as bcrypt hash
+user.password = 'secret';   // triggers mutator â€” stored as bcrypt hash
 await user.save();
 ```
 
-Mutators can transform the value in any way — normalizing strings, deriving computed columns, etc.:
+Mutators can transform the value in any way â€” normalizing strings, deriving computed columns, etc.:
 
 ```ts
 @table('products')
@@ -173,7 +173,7 @@ class Product extends Model {
 Use `@casts` to automatically transform attributes when reading from or writing to the model. No code needed in the class body.
 
 ```ts
-import { Model, table, casts } from 'orion';
+import { Model, table, casts } from '@wrsouza/orion';
 
 @table('products')
 @casts({
@@ -267,7 +267,7 @@ enum UserRole {
 Encrypted casts require a `CipherContract` implementation on `Model._cipher`. Set it once at application startup:
 
 ```ts
-import { Model } from 'orion';
+import { Model } from '@wrsouza/orion';
 
 Model._cipher = {
   encrypt: (plaintext: string): string =>
@@ -301,12 +301,12 @@ const products = await Product.withCasts({ price: 'decimal:4' }).get();
 
 ## Custom Casts
 
-### CastClass — Bidirectional
+### CastClass â€” Bidirectional
 
 Implement `CastClass` for bidirectional transformations:
 
 ```ts
-import { CastClass } from 'orion';
+import { CastClass } from '@wrsouza/orion';
 
 class MoneyCast implements CastClass {
   get(value: unknown): Money {
@@ -325,12 +325,12 @@ product.price = new Money(2999, 'USD');
 await product.save();       // stores: 2999
 ```
 
-### CastsInboundAttributes — Write-Only
+### CastsInboundAttributes â€” Write-Only
 
 When you only need a write-side transformation (e.g. one-way hashing), implement `CastsInboundAttributes`:
 
 ```ts
-import { CastsInboundAttributes } from 'orion';
+import { CastsInboundAttributes } from '@wrsouza/orion';
 import { createHash } from 'crypto';
 
 class Sha256Cast implements CastsInboundAttributes {
@@ -348,7 +348,7 @@ class Application extends Model {}
 For value objects that know how to cast themselves, implement `Castable`:
 
 ```ts
-import { Castable, CastClass } from 'orion';
+import { Castable, CastClass } from '@wrsouza/orion';
 
 class Address implements Castable {
   constructor(
@@ -406,7 +406,7 @@ class Product extends Model {}
 Implement `ComparesCastableAttributes` when Orion should use a custom equality check for dirty tracking:
 
 ```ts
-import { ComparesCastableAttributes } from 'orion';
+import { ComparesCastableAttributes } from '@wrsouza/orion';
 
 class MoneyCast implements CastClass, ComparesCastableAttributes {
   get(value: unknown): Money { /* ... */ }

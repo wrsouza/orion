@@ -1,4 +1,4 @@
-# Pagination
+﻿# Pagination
 
 - [Introduction](#introduction)
 - [paginate()](#paginate)
@@ -32,13 +32,13 @@ const page = await User.where('is_active', true)
   .paginate(15);
 
 // Paginator<User> properties:
-page.data         // ModelCollection<User> — models on this page
-page.total        // 248 — total matching rows
+page.data         // ModelCollection<User> â€” models on this page
+page.total        // 248 â€” total matching rows
 page.perPage      // 15
 page.currentPage  // 1 (default)
 page.lastPage     // 17 (Math.ceil(248 / 15))
-page.from         // 1 — first row index on this page
-page.to           // 15 — last row index on this page
+page.from         // 1 â€” first row index on this page
+page.to           // 15 â€” last row index on this page
 page.hasMorePages // true
 ```
 
@@ -109,7 +109,7 @@ page.hasMorePages // true or false
 ```
 
 Use `simplePaginate` when:
-- You display "Load more" or "Next →" buttons instead of numbered pages
+- You display "Load more" or "Next â†’" buttons instead of numbered pages
 - The table is very large and `COUNT(*)` would be slow
 - You only need to know if there's a next page, not the total
 

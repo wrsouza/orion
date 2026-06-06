@@ -1,4 +1,4 @@
-# Serialization
+﻿# Serialization
 
 - [Introduction](#introduction)
 - [Serializing to Arrays](#serializing-to-arrays)
@@ -29,7 +29,7 @@ const user = await User.with('roles').firstOrFail();
 const data = user.toArray();
 // { id: 1, name: 'Alice', email: 'a@example.com', roles: [{ id: 1, name: 'admin' }] }
 
-// Attributes only — no relations
+// Attributes only â€” no relations
 const attrs = user.attributesToArray();
 // { id: 1, name: 'Alice', email: 'a@example.com' }
 ```
@@ -68,7 +68,7 @@ app.get('/users', async (req, res) => {
 Use `@hidden` to exclude sensitive columns from serialization:
 
 ```ts
-import { Model, table, hidden } from 'orion';
+import { Model, table, hidden } from '@wrsouza/orion';
 
 @table('users')
 @hidden(['password', 'remember_token', 'two_factor_secret'])
@@ -85,7 +85,7 @@ You can also hide relationships by adding the relation name to `@hidden`.
 
 ## Exposing Attributes (visible)
 
-`@visible` is the inverse of `@hidden` — only listed columns appear in serialization. All other columns are hidden:
+`@visible` is the inverse of `@hidden` â€” only listed columns appear in serialization. All other columns are hidden:
 
 ```ts
 @table('users')
@@ -94,7 +94,7 @@ class User extends Model {}
 
 user.toArray();
 // { id: 1, name: 'Alice', email: 'a@example.com' }
-// All other columns — password, settings, etc. — are excluded
+// All other columns â€” password, settings, etc. â€” are excluded
 ```
 
 > `@visible` and `@hidden` are mutually exclusive. Prefer `@visible` when you want an explicit allowlist, and `@hidden` when you just want to exclude a few sensitive columns.
@@ -138,7 +138,7 @@ users.mergeHidden(['secret']).toArray();
 Computed accessors are excluded from serialization by default. Use `@appends` to include them permanently:
 
 ```ts
-import { Model, table, appends, accessor } from 'orion';
+import { Model, table, appends, accessor } from '@wrsouza/orion';
 
 @table('users')
 @appends(['full_name', 'is_veteran'])

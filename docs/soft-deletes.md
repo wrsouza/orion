@@ -1,4 +1,4 @@
-# Soft Deletes
+﻿# Soft Deletes
 
 - [Introduction](#introduction)
 - [Setup](#setup)
@@ -23,7 +23,7 @@ Soft deleting means setting a `deleted_at` timestamp on a row instead of physica
 Apply the `SoftDeletes` mixin to your model:
 
 ```ts
-import { Model, SoftDeletes, table, fillable } from 'orion';
+import { Model, SoftDeletes, table, fillable } from '@wrsouza/orion';
 
 @table('posts')
 @fillable(['title', 'body'])
@@ -53,7 +53,7 @@ const post = await Post.findOrFail(1);
 
 await post.delete();
 // Sets deleted_at = NOW() and saves. Row stays in the database.
-// Fires: deleting → deleted
+// Fires: deleting â†’ deleted
 
 post.trashed(); // true
 post.deleted_at; // Date
@@ -62,7 +62,7 @@ post.deleted_at; // Date
 The row is no longer returned by default queries:
 
 ```ts
-await Post.find(1); // null — excluded by SoftDeleteScope
+await Post.find(1); // null â€” excluded by SoftDeleteScope
 await Post.all();   // only non-deleted posts
 ```
 
@@ -75,7 +75,7 @@ const post = await Post.withTrashed().where('id', 1).firstOrFail();
 
 await post.restore();
 // Sets deleted_at = NULL
-// Fires: restoring → restored
+// Fires: restoring â†’ restored
 
 post.trashed(); // false
 ```
@@ -111,7 +111,7 @@ Permanently remove a row, bypassing soft deletes:
 ```ts
 await post.forceDelete();
 // Physically removes the row from the database
-// Fires: forceDeleting → forceDeleted
+// Fires: forceDeleting â†’ forceDeleted
 
 await Post.where('deleted_at', '<', cutoffDate).forceDelete();
 // Bulk force delete (no per-model events)
@@ -144,9 +144,9 @@ Soft-delete operations fire specific events:
 
 | Operation | Events fired |
 |-----------|-------------|
-| `delete()` | `deleting` → `deleted` |
-| `restore()` | `restoring` → `restored` |
-| `forceDelete()` | `forceDeleting` → `forceDeleted` |
+| `delete()` | `deleting` â†’ `deleted` |
+| `restore()` | `restoring` â†’ `restored` |
+| `forceDelete()` | `forceDeleting` â†’ `forceDeleted` |
 
 Listen to restore events:
 
