@@ -4,6 +4,7 @@
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![Documentation](https://img.shields.io/badge/docs-wrsouza.github.io%2Forion-blue)](https://wrsouza.github.io/orion/)
 
 Orion gives you a fluent, expressive API for working with SQL databases in TypeScript. Models are plain classes. Relationships are method calls. Queries read like English.
 
