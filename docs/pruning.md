@@ -1,8 +1,8 @@
-﻿# Pruning
+# Pruning
 
 - [Introduction](#introduction)
-- [Prunable â€” Per-Row Deletion](#prunable--per-row-deletion)
-- [MassPrunable â€” Bulk Deletion](#massprunable--bulk-deletion)
+- [Prunable — Per-Row Deletion](#prunable--per-row-deletion)
+- [MassPrunable — Bulk Deletion](#massprunable--bulk-deletion)
 - [Running the Pruner](#running-the-pruner)
 - [Scheduling Pruning](#scheduling-pruning)
 
@@ -10,7 +10,7 @@
 
 ## Introduction
 
-Pruning removes records that are no longer needed â€” for example, activity logs older than 90 days or expired tokens. Orion provides two strategies:
+Pruning removes records that are no longer needed — for example, activity logs older than 90 days or expired tokens. Orion provides two strategies:
 
 | Mixin | Method | Events fired | `pruning()` hook | Use when |
 |-------|--------|-------------|-----------------|----------|
@@ -19,7 +19,7 @@ Pruning removes records that are no longer needed â€” for example, activity
 
 ---
 
-## Prunable â€” Per-Row Deletion
+## Prunable — Per-Row Deletion
 
 Apply `Prunable` to a model and implement `prunable()` to define which records should be deleted:
 
@@ -37,7 +37,7 @@ class ActivityLog extends Prunable(Model) {
     return ActivityLog.where('created_at', '<', cutoff);
   }
 
-  // Optional hook â€” called just before each row is deleted
+  // Optional hook — called just before each row is deleted
   pruning(): void {
     // Perform any per-row cleanup here (e.g. delete related files from S3)
     console.log(`Pruning activity log ${this.id}`);
@@ -45,11 +45,11 @@ class ActivityLog extends Prunable(Model) {
 }
 ```
 
-The `pruning()` hook is called once per record, before `delete()`. If the model has `SoftDeletes`, `delete()` soft-deletes the row â€” use `forceDelete()` inside `pruning()` if you need a hard delete.
+The `pruning()` hook is called once per record, before `delete()`. If the model has `SoftDeletes`, `delete()` soft-deletes the row — use `forceDelete()` inside `pruning()` if you need a hard delete.
 
 ---
 
-## MassPrunable â€” Bulk Deletion
+## MassPrunable — Bulk Deletion
 
 Apply `MassPrunable` when you want a single `DELETE ... WHERE` with no per-row processing:
 
@@ -65,7 +65,7 @@ class Telemetry extends MassPrunable(Model) {
 }
 ```
 
-MassPrunable executes a single bulk `DELETE` â€” no model events fire and no `pruning()` hook is called. It is orders of magnitude faster than `Prunable` for large tables.
+MassPrunable executes a single bulk `DELETE` — no model events fire and no `pruning()` hook is called. It is orders of magnitude faster than `Prunable` for large tables.
 
 ---
 
@@ -87,11 +87,11 @@ npx orion model:prune --chunk=500
 ### Programmatic API
 
 ```ts
-// Prunable â€” fires events, calls pruning() hook per row
+// Prunable — fires events, calls pruning() hook per row
 await ActivityLog.pruneAll();
 await ActivityLog.pruneAll(500); // custom chunk size
 
-// MassPrunable â€” single bulk DELETE
+// MassPrunable — single bulk DELETE
 await Telemetry.pruneAll();
 ```
 

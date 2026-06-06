@@ -1,4 +1,4 @@
-﻿# Getting Started
+# Getting Started
 
 - [Introduction](#introduction)
 - [Installation](#installation)
@@ -37,7 +37,7 @@ Orion is inspired by Laravel's Eloquent and follows the same conventions. If you
 ## Installation
 
 ```bash
-npm install @wrsouza/orion
+npm install orion
 ```
 
 Install the peer dependency for your database driver:
@@ -87,7 +87,7 @@ module.exports = {
   },
   migrations: {
     path:  './database/migrations',
-    table: 'orion_migrations', // default â€” tracks migration history
+    table: 'orion_migrations', // default — tracks migration history
   },
 };
 ```
@@ -103,7 +103,7 @@ ConnectionManager.addConnection('default', config.connection);
 
 ### Connection via URL
 
-The most common pattern in cloud environments is a single `DATABASE_URL` environment variable. Use `addConnectionUrl()` to connect directly from a URL â€” the driver is inferred from the scheme:
+The most common pattern in cloud environments is a single `DATABASE_URL` environment variable. Use `addConnectionUrl()` to connect directly from a URL — the driver is inferred from the scheme:
 
 ```ts
 import { ConnectionManager } from '@wrsouza/orion';
@@ -312,7 +312,7 @@ const actives = await User
 ```ts
 // By primary key
 const user = await User.find(1);             // User | null
-const user = await User.findOrFail(1);       // User  â€” throws ModelNotFoundException
+const user = await User.findOrFail(1);       // User  — throws ModelNotFoundException
 
 // By attribute
 const user = await User.firstWhere('email', 'alice@example.com');
@@ -333,7 +333,7 @@ const user = await User.firstOrNew(
   { email: 'alice@example.com' },
   { name: 'Alice' }
 );
-// firstOrNew does NOT persist â€” call user.save() yourself
+// firstOrNew does NOT persist — call user.save() yourself
 
 // Update or create
 const user = await User.updateOrCreate(
@@ -361,7 +361,7 @@ const found  = await User.where('email', 'a@b.com').exists();
 ### Inserts
 
 ```ts
-// Static create â€” inserts immediately and returns the new instance
+// Static create — inserts immediately and returns the new instance
 const user = await User.create({ name: 'Alice', email: 'alice@example.com' });
 
 console.log(user.id);                 // auto-populated from DB
@@ -387,7 +387,7 @@ await user.save();
 // Multiple attributes at once
 await user.update({ name: 'Alice C.', is_active: false });
 
-// Transaction-wrapped â€” throws if the operation fails
+// Transaction-wrapped — throws if the operation fails
 await user.saveOrFail();
 await user.updateOrFail({ name: 'Alice D.' });
 ```
@@ -403,13 +403,13 @@ await User.where('is_active', false).update({ status: 'archived' });
 Orion requires explicit mass-assignment declaration:
 
 ```ts
-@fillable(['name', 'email'])    // allowlist â€” only these columns are accepted
+@fillable(['name', 'email'])    // allowlist — only these columns are accepted
 class User extends Model {}
 
-@guarded(['is_admin'])          // blocklist â€” all columns except this one
+@guarded(['is_admin'])          // blocklist — all columns except this one
 class Post extends Model {}
 
-// @guarded([]) â€” accept everything (disable all protection)
+// @guarded([]) — accept everything (disable all protection)
 ```
 
 ### Upserts
@@ -435,10 +435,10 @@ const user = await User.findOrFail(1);
 await user.delete();         // delete this row
 await user.deleteOrFail();   // same, but throws if deletion is cancelled by an event
 
-// Static bulk delete â€” does NOT fire per-model events
+// Static bulk delete — does NOT fire per-model events
 await User.where('is_active', false).delete();
 
-// Static delete with events â€” fires events per model
+// Static delete with events — fires events per model
 await User.destroy(1);
 await User.destroy(1, 2, 3);
 await User.destroyAndFire(1, 2); // alias for destroy
@@ -459,7 +459,7 @@ const userA = await User.find(1);
 const userB = await User.find(1);
 const userC = await User.find(2);
 
-userA.is(userB);    // true  â€” same PK and table
+userA.is(userB);    // true  — same PK and table
 userA.is(userC);    // false
 userA.isNot(userC); // true
 ```
@@ -474,7 +474,7 @@ Orion tracks which attributes have changed since the model was last loaded or sa
 const user = await User.findOrFail(1);
 user.name = 'New Name';
 
-user.isDirty();           // true â€” at least one attribute changed
+user.isDirty();           // true — at least one attribute changed
 user.isDirty('name');     // true
 user.isDirty('email');    // false
 user.isClean('email');    // true
@@ -485,10 +485,10 @@ user.getOriginal();       // all original values
 
 await user.save();
 
-user.wasChanged('name');  // true â€” name changed in the last save
+user.wasChanged('name');  // true — name changed in the last save
 user.wasChanged('email'); // false
-user.getChanges();        // { name: 'New Name' } â€” attrs changed in last save
-user.getPrevious('name'); // 'Old Name' â€” snapshot before last save
+user.getChanges();        // { name: 'New Name' } — attrs changed in last save
+user.getPrevious('name'); // 'Old Name' — snapshot before last save
 user.isDirty();           // false
 ```
 

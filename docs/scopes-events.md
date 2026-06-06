@@ -1,4 +1,4 @@
-﻿# Scopes & Events
+# Scopes & Events
 
 - [Query Scopes](#query-scopes)
   - [Global Scopes](#global-scopes)
@@ -185,7 +185,7 @@ class User extends Model {
 
     // Log every update
     this.updated((user) => {
-      console.log(`User ${user.id} updated â€” changed: ${JSON.stringify(user.getChanges())}`);
+      console.log(`User ${user.id} updated — changed: ${JSON.stringify(user.getChanges())}`);
     });
   }
 }
@@ -221,7 +221,7 @@ Return `false` from a `-ing` listener to cancel the operation:
 User.deleting((user) => {
   if (user._attributes.is_admin) {
     console.log('Cannot delete an admin user');
-    return false; // cancels delete â€” no exception, just returns false from delete()
+    return false; // cancels delete — no exception, just returns false from delete()
   }
 });
 
@@ -277,7 +277,7 @@ class UserObserver implements Observer<User> {
 }
 ```
 
-All observer methods are optional â€” implement only the events you need.
+All observer methods are optional — implement only the events you need.
 
 ### Registering Observers
 
@@ -291,7 +291,7 @@ Or at application bootstrap:
 ```ts
 import { ConnectionManager } from '@wrsouza/orion';
 
-// Via URL or explicit config â€” then register observers
+// Via URL or explicit config — then register observers
 ConnectionManager.addConnectionUrl('default', process.env.DATABASE_URL!);
 // or: ConnectionManager.addConnection('default', config);
 
@@ -333,7 +333,7 @@ Quiet variants bypass all static hooks and observers.
 
 ## withoutEvents
 
-Suppress all model events for a block of code â€” events are re-enabled automatically after the callback returns:
+Suppress all model events for a block of code — events are re-enabled automatically after the callback returns:
 
 ```ts
 import { withoutEvents } from '@wrsouza/orion';
@@ -346,7 +346,7 @@ await User.withoutEvents(async () => {
 // Events are re-enabled here
 ```
 
-`withoutEvents` is safely nestable â€” the inner block restores the outer state.
+`withoutEvents` is safely nestable — the inner block restores the outer state.
 
 Equivalent for a single model class:
 

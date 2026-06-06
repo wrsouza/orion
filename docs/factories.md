@@ -1,4 +1,4 @@
-﻿# Factories
+# Factories
 
 - [Introduction](#introduction)
 - [Defining a Factory](#defining-a-factory)
@@ -6,8 +6,8 @@
   - [Factory Callbacks](#factory-callbacks)
 - [Registering a Factory on a Model](#registering-a-factory-on-a-model)
 - [Creating Models](#creating-models)
-  - [make â€” Unsaved Instances](#make--unsaved-instances)
-  - [create â€” Persisted Instances](#create--persisted-instances)
+  - [make — Unsaved Instances](#make--unsaved-instances)
+  - [create — Persisted Instances](#create--persisted-instances)
   - [Overriding Attributes](#overriding-attributes)
 - [Sequences](#sequences)
 - [Factory Relationships](#factory-relationships)
@@ -114,11 +114,11 @@ class UserFactory extends Factory<User> {
 
   protected configure(): void {
     this.afterMaking((user) => {
-      // Called after make() â€” user is not yet persisted
+      // Called after make() — user is not yet persisted
     });
 
     this.afterCreating(async (user) => {
-      // Called after create() â€” user is in the database
+      // Called after create() — user is in the database
       await Profile.create({ user_id: user.id, bio: '' });
     });
   }
@@ -154,7 +154,7 @@ User.factory(); // returns new UserFactory()
 
 ## Creating Models
 
-### make â€” Unsaved Instances
+### make — Unsaved Instances
 
 ```ts
 const user  = User.factory().make();
@@ -162,10 +162,10 @@ const users = User.factory().count(3).make();
 
 // make() returns a plain instance (no DB interaction)
 console.log(user.name); // 'Alice Smith'
-console.log(user.id);   // undefined â€” not persisted
+console.log(user.id);   // undefined — not persisted
 ```
 
-### create â€” Persisted Instances
+### create — Persisted Instances
 
 ```ts
 const user  = await User.factory().create();
@@ -330,15 +330,15 @@ const posts = await Post.factory().count(3).forUser(User.factory()).create();
 When multiple factories would create duplicate related models, use `recycle()` to share a single instance:
 
 ```ts
-// Without recycle â€” each ticket and each flight creates its own airline
+// Without recycle — each ticket and each flight creates its own airline
 await Ticket.factory().count(3).create();
 
-// With recycle â€” all tickets and flights share the same airline
+// With recycle — all tickets and flights share the same airline
 const airline = await Airline.factory().create();
 await Ticket.factory().count(3).recycle(airline).create();
 ```
 
-`recycle()` also accepts a collection â€” a random model from the collection is chosen each time:
+`recycle()` also accepts a collection — a random model from the collection is chosen each time:
 
 ```ts
 const airlines = await Airline.factory().count(3).create();

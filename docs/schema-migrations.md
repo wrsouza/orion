@@ -1,4 +1,4 @@
-﻿# Schema & Migrations
+# Schema & Migrations
 
 - [Introduction](#introduction)
 - [Generating Migrations](#generating-migrations)
@@ -151,7 +151,7 @@ npx orion migrate:status
 
 ```
   Status    Batch    Migration
-  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  ──────────────────────────────────────────────────────────────────
   Ran       1        20240601120000_create_users_table
   Ran       1        20240601120001_create_posts_table
   Ran       2        20240605090000_add_avatar_to_users
@@ -188,7 +188,7 @@ await Schema.table('users', (table: Blueprint) => {
   table.string('phone', 20).nullable();
   table.string('avatar_url').nullable();
 
-  // Modify (driver-dependent â€” not all drivers support all modifications)
+  // Modify (driver-dependent — not all drivers support all modifications)
   table.text('bio').nullable().change();
 
   // Drop
@@ -244,10 +244,10 @@ const columns = await Schema.getColumnListing('users');   // string[]
 | `time(name)` | `TIME` | `TIME` | `TEXT` | `TIME` |
 | `binary(name)` | `BYTEA` | `BLOB` | `BLOB` | `VARBINARY(MAX)` |
 | `enum(name, values[])` | `VARCHAR CHECK(...)` | `ENUM(...)` | `TEXT CHECK(...)` | `NVARCHAR CHECK(...)` |
-| `timestamps()` | â€” | â€” | â€” | â€” |
-| `timestampsTz()` | â€” | â€” | â€” | â€” |
-| `softDeletes(col?)` | â€” | â€” | â€” | â€” |
-| `softDeletesTz(col?)` | â€” | â€” | â€” | â€” |
+| `timestamps()` | — | — | — | — |
+| `timestampsTz()` | — | — | — | — |
+| `softDeletes(col?)` | — | — | — | — |
+| `softDeletesTz(col?)` | — | — | — | — |
 | `foreignId(name)` | `BIGINT` | `BIGINT UNSIGNED` | `INTEGER` | `BIGINT` |
 | `foreignUuid(name)` | `UUID` | `CHAR(36)` | `TEXT` | `UNIQUEIDENTIFIER` |
 | `morphs(name)` | `{name}_type VARCHAR + {name}_id BIGINT + index` | same | same | same |

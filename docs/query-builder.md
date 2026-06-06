@@ -1,4 +1,4 @@
-﻿# Query Builder
+# Query Builder
 
 - [Introduction](#introduction)
 - [Running Queries](#running-queries)
@@ -28,7 +28,7 @@
 
 Every `Model` has a fluent query builder accessible via `Model.query()` or any static query method (`where`, `orderBy`, etc.). You can also use the `QueryBuilder` directly against a connection for raw query building.
 
-The query builder produces dialect-correct SQL for all five supported databases. You never write a parameter placeholder yourself â€” Orion handles it per driver (`$1`/`$2` for Postgres, `?` for MySQL/SQLite/MariaDB, `@p1` for SQL Server).
+The query builder produces dialect-correct SQL for all five supported databases. You never write a parameter placeholder yourself — Orion handles it per driver (`$1`/`$2` for Postgres, `?` for MySQL/SQLite/MariaDB, `@p1` for SQL Server).
 
 ---
 
@@ -48,7 +48,7 @@ const user = await User.find(1);
 const emails = await User.where('is_active', true).pluck('email');
 // ['alice@example.com', 'bob@example.com']
 
-// Value â€” single column from first row
+// Value — single column from first row
 const name = await User.where('id', 1).value('name');
 ```
 
@@ -320,7 +320,7 @@ await Order
 // Raw in orderBy
 await User.orderByRaw('FIELD(status, "active", "pending", "inactive")').get();
 
-// Inline raw expression (use sparingly â€” not parameterized)
+// Inline raw expression (use sparingly — not parameterized)
 const users = await User
   .select(raw('COUNT(*) as total'), 'country')
   .groupBy('country')
@@ -333,7 +333,7 @@ const users = await User
 
 ## Insert, Update, Delete
 
-These methods execute immediately on the connection â€” they do not go through model events.
+These methods execute immediately on the connection — they do not go through model events.
 
 ```ts
 // Insert
@@ -377,7 +377,7 @@ const users = await User
   }, 'orders_count')
   .get();
 
-// user.getRelation<number>('orders_count') â†’ 5
+// user.getRelation<number>('orders_count') → 5
 ```
 
 Or use `addSubSelect`:

@@ -1,4 +1,4 @@
-﻿# Collections
+# Collections
 
 - [Introduction](#introduction)
 - [Collection\<T\>](#collectiont)
@@ -14,7 +14,7 @@
 
 ## Introduction
 
-All multi-row results returned by Orion â€” from `Model.get()`, relation queries, and `Model.all()` â€” are instances of `ModelCollection<T>`. This class extends the base `Collection<T>` with model-aware methods for PK lookups, eager loading, and batch database operations.
+All multi-row results returned by Orion — from `Model.get()`, relation queries, and `Model.all()` — are instances of `ModelCollection<T>`. This class extends the base `Collection<T>` with model-aware methods for PK lookups, eager loading, and batch database operations.
 
 ---
 
@@ -32,7 +32,7 @@ col.isEmpty()         // boolean
 col.isNotEmpty()      // boolean
 col.contains(item)    // boolean (by value or predicate)
 col.first()           // T | undefined
-col.first(fn)         // T | undefined â€” first matching predicate
+col.first(fn)         // T | undefined — first matching predicate
 col.last()            // T | undefined
 col.last(fn)          // T | undefined
 
@@ -44,10 +44,10 @@ col.get(index)        // T | undefined
 col.map(fn)           // Collection<U>
 col.flatMap(fn)       // Collection<U>
 col.filter(fn)        // Collection<T>
-col.reject(fn)        // Collection<T> â€” inverse of filter
-col.each(fn)          // void â€” iterate, returning this for chaining
+col.reject(fn)        // Collection<T> — inverse of filter
+col.each(fn)          // void — iterate, returning this for chaining
 col.reduce(fn, init)  // accumulator result
-col.pluck(key)        // Collection<V> â€” values for a given property
+col.pluck(key)        // Collection<V> — values for a given property
 col.groupBy(key)      // Record<string, Collection<T>>
 col.keyBy(key)        // Record<string, T>
 col.chunk(size)       // Collection<Collection<T>>
@@ -63,12 +63,12 @@ col.push(...items)    // Collection<T>
 col.merge(other)      // Collection<T>
 col.concat(other)     // Collection<T>
 col.prepend(item)     // Collection<T>
-col.append(item)      // Collection<T> â€” add to end (non-model version)
+col.append(item)      // Collection<T> — add to end (non-model version)
 
 // Slicing
 col.slice(start, end?)       // Collection<T>
-col.take(n)                  // Collection<T> â€” first N items
-col.skip(n)                  // Collection<T> â€” skip first N
+col.take(n)                  // Collection<T> — first N items
+col.skip(n)                  // Collection<T> — skip first N
 col.forPage(page, perPage)   // Collection<T>
 
 // Aggregates
@@ -91,10 +91,10 @@ col.toJSON()     // string
 ### PK-Based Methods
 
 ```ts
-// Find by primary key â€” returns the model or undefined
+// Find by primary key — returns the model or undefined
 const user = users.findByKey(1);
 
-// Find or throw â€” throws ModelNotFoundException if missing
+// Find or throw — throws ModelNotFoundException if missing
 const user = users.findOrFail(1);
 
 // All primary keys as an array
@@ -119,14 +119,14 @@ users.contains(someUser);
 // Deduplicate by PK
 const unique = users.unique();
 
-// Split into two groups â€” [matching, notMatching]
+// Split into two groups — [matching, notMatching]
 const [admins, regular] = users.partition((u) => u._attributes.role === 'admin');
 ```
 
 ### Database Operations
 
 ```ts
-// Re-fetch all models from the database â€” returns a new ModelCollection
+// Re-fetch all models from the database — returns a new ModelCollection
 const freshUsers = await users.fresh();
 
 // Re-fetch with eager-loaded relationships
@@ -212,7 +212,7 @@ class UserCollection extends ModelCollection<User> {
 ```
 
 ```ts
-import { CollectedBy } from '@wrsouza/orion';  // planned â€” see gap audit
+import { CollectedBy } from '@wrsouza/orion';  // planned — see gap audit
 
 @CollectedBy(UserCollection)
 @table('users')

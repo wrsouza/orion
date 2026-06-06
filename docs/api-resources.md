@@ -1,4 +1,4 @@
-﻿# API Resources
+# API Resources
 
 - [Introduction](#introduction)
 - [Defining a Resource](#defining-a-resource)
@@ -24,7 +24,7 @@
 
 ## Introduction
 
-API resources provide a transformation layer between your models and the JSON responses returned to API clients. Instead of returning models directly, resources let you control the exact shape of the response â€” including which fields are exposed, how relationships are nested, and what metadata is included.
+API resources provide a transformation layer between your models and the JSON responses returned to API clients. Instead of returning models directly, resources let you control the exact shape of the response — including which fields are exposed, how relationships are nested, and what metadata is included.
 
 ---
 
@@ -56,7 +56,7 @@ new UserResource(user).toResponse();
 // { data: { id: 1, name: 'Alice', email: 'alice@example.com', created_at: '...' } }
 
 new UserResource(user).resolve();
-// { id: 1, name: 'Alice', email: '...', created_at: '...' } â€” no data: wrapper
+// { id: 1, name: 'Alice', email: '...', created_at: '...' } — no data: wrapper
 ```
 
 ---
@@ -75,14 +75,14 @@ class UserResource extends Resource<User> {
       name:  this.resource.name,
       // Only include email if the user is an admin
       email: this.when(this.resource.is_admin, this.resource.email),
-      // Lazy â€” closure is only called when condition is true
+      // Lazy — closure is only called when condition is true
       token: this.when(this.resource.is_admin, () => this.resource.generateToken()),
     };
   }
 }
 ```
 
-`whenNotNull` â€” include only when the value is not null:
+`whenNotNull` — include only when the value is not null:
 
 ```ts
 bio: this.whenNotNull(this.resource.bio),
@@ -90,7 +90,7 @@ bio: this.whenNotNull(this.resource.bio),
 bio: this.whenNotNull(this.resource.bio, this.resource.bio.toUpperCase()),
 ```
 
-`whenHas` â€” include if the attribute exists on the model:
+`whenHas` — include if the attribute exists on the model:
 
 ```ts
 score: this.whenHas('score'),
@@ -263,7 +263,7 @@ Resource.withoutWrapping();
 
 ## Top-Level Metadata
 
-### `additional()` â€” runtime
+### `additional()` — runtime
 
 Merge additional top-level keys into the response:
 
@@ -274,7 +274,7 @@ new UserResource(user)
 // { data: { id: 1, ... }, meta: { api_version: 2, server: 'us-east-1' } }
 ```
 
-### `with()` â€” declarative in subclass
+### `with()` — declarative in subclass
 
 Override in the resource class for static top-level metadata:
 
@@ -304,8 +304,8 @@ const response = new UserResource(user)
   .withResponseHeaders({ 'X-User-Version': '2', 'Cache-Control': 'no-store' })
   .response();
 
-// response.data    â€” the resource payload
-// response.headers â€” { 'X-User-Version': '2', ... }
+// response.data    — the resource payload
+// response.headers — { 'X-User-Version': '2', ... }
 ```
 
 ---

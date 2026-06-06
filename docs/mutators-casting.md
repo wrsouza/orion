@@ -1,4 +1,4 @@
-﻿# Mutators & Casting
+# Mutators & Casting
 
 - [Introduction](#introduction)
 - [Accessors](#accessors)
@@ -13,8 +13,8 @@
   - [Encrypted Casting](#encrypted-casting)
   - [Query-Time Casting](#query-time-casting)
 - [Custom Casts](#custom-casts)
-  - [CastClass â€” Bidirectional](#castclass--bidirectional)
-  - [CastsInboundAttributes â€” Write-Only](#castsinboundattributes--write-only)
+  - [CastClass — Bidirectional](#castclass--bidirectional)
+  - [CastsInboundAttributes — Write-Only](#castsinboundattributes--write-only)
   - [Castable Value Objects](#castable-value-objects)
   - [Cast Parameters](#cast-parameters)
   - [Comparing Cast Values](#comparing-cast-values)
@@ -68,7 +68,7 @@ user.email; // always lowercase, regardless of DB value
 
 ### Accessor Caching
 
-By default, object-returning accessors are cached per-instance â€” changes to the returned object are synced back before save. For expensive primitive computations, opt into caching explicitly:
+By default, object-returning accessors are cached per-instance — changes to the returned object are synced back before save. For expensive primitive computations, opt into caching explicitly:
 
 ```ts
 @table('users')
@@ -149,11 +149,11 @@ class User extends Model {
 }
 
 const user = new User();
-user.password = 'secret';   // triggers mutator â€” stored as bcrypt hash
+user.password = 'secret';   // triggers mutator — stored as bcrypt hash
 await user.save();
 ```
 
-Mutators can transform the value in any way â€” normalizing strings, deriving computed columns, etc.:
+Mutators can transform the value in any way — normalizing strings, deriving computed columns, etc.:
 
 ```ts
 @table('products')
@@ -301,7 +301,7 @@ const products = await Product.withCasts({ price: 'decimal:4' }).get();
 
 ## Custom Casts
 
-### CastClass â€” Bidirectional
+### CastClass — Bidirectional
 
 Implement `CastClass` for bidirectional transformations:
 
@@ -325,7 +325,7 @@ product.price = new Money(2999, 'USD');
 await product.save();       // stores: 2999
 ```
 
-### CastsInboundAttributes â€” Write-Only
+### CastsInboundAttributes — Write-Only
 
 When you only need a write-side transformation (e.g. one-way hashing), implement `CastsInboundAttributes`:
 
