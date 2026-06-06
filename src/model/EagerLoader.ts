@@ -1,6 +1,6 @@
 import type { Model } from './Model';
-import { ModelBuilder } from './ModelBuilder';
-import { Relation } from './relations/Relation';
+import type { ModelBuilder } from './ModelBuilder';
+import type { Relation } from './relations/Relation';
 
 /** Constraint function that can be passed to `with()` to narrow an eager load. */
 export type EagerConstraint = (query: ModelBuilder<any>) => void;
@@ -121,7 +121,11 @@ export class EagerLoader {
     if (typeof method !== 'function') return null;
     try {
       const result = method.call(model);
-      return result instanceof Relation ? result : null;
+      return result != null &&
+        typeof result.getResults === 'function' &&
+        typeof result.addEagerConstraints === 'function'
+        ? (result as Relation<any>)
+        : null;
     } catch {
       return null;
     }
