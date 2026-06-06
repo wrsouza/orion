@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "Orion"
   text: "Active Record ORM for TypeScript"
-  tagline: Eloquent-inspired. Five database drivers. Built from scratch — no Knex, no TypeORM.
+  tagline: Eloquent-inspired. Five database drivers. Built from scratch.
   image:
     src: /logo.svg
     alt: Orion

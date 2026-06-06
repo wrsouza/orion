@@ -1,6 +1,6 @@
 # Orion
 
-> An Eloquent-inspired Active Record ORM for TypeScript — built from scratch, no Knex, no TypeORM.
+> An Eloquent-inspired Active Record ORM for TypeScript.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
