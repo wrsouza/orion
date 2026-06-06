@@ -8,7 +8,7 @@
 Orion gives you a fluent, expressive API for working with SQL databases in TypeScript. Models are plain classes. Relationships are method calls. Queries read like English.
 
 ```ts
-import { Model, table, fillable, hidden } from 'orion';
+import { Model, table, fillable, hidden } from '@wrsouza/orion';
 
 @table('users')
 @fillable(['name', 'email', 'password'])
@@ -46,7 +46,7 @@ const users = await User.with('posts', 'profile').get();
 ## Installation
 
 ```bash
-npm install orion
+npm install @wrsouza/orion
 # then install the driver for your database:
 npm install pg             # PostgreSQL
 npm install mysql2         # MySQL
@@ -80,7 +80,7 @@ module.exports = {
 **2. Bootstrap the connection:**
 
 ```ts
-import { ConnectionManager } from 'orion';
+import { ConnectionManager } from '@wrsouza/orion';
 
 // Option A — URL (recommended for cloud/12-factor apps)
 ConnectionManager.addConnectionUrl('default', process.env.DATABASE_URL!);
@@ -93,7 +93,7 @@ ConnectionManager.addConnection('default', config.connection);
 **3. Define a model and query:**
 
 ```ts
-import { Model, table, fillable, casts } from 'orion';
+import { Model, table, fillable, casts } from '@wrsouza/orion';
 
 @table('users')
 @fillable(['name', 'email'])
