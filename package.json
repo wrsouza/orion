@@ -15,7 +15,7 @@
   },
   "files": [
     "dist",
-    "docs",
+    "docs/*.md",
     "README.md",
     "LICENSE",
     "CHANGELOG.md"
@@ -29,6 +29,9 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
     "prepare": "husky",
     "prepublishOnly": "npm run typecheck && npm run lint && npm run build"
   },
@@ -87,7 +90,8 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.0.7",
     "prettier": "^3.8.3",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "vitepress": "^1.6.4"
   },
   "peerDependenciesMeta": {
     "pg": {
