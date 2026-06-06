@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "Bash(npx tsc *)",
+      "Bash(node -e ' *)",
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(grep -v \":0$\")",
+      "Bash(New-Item -Path \"C:\\\\Projects\\\\sta-orm\\\\README.md\" -ItemType File -Force)",
+      "Bash(Out-Null)",
+      "Bash(New-Item -Path \"C:\\\\Projects\\\\sta-orm\\\\docs\\\\getting-started.md\" -ItemType File -Force)",
+      "Bash(New-Item -Path \"C:\\\\Projects\\\\sta-orm\\\\docs\\\\query-builder.md\" -ItemType File -Force)",
+      "Bash(New-Item -Path \"C:\\\\Projects\\\\sta-orm\\\\docs\\\\relationships.md\" -ItemType File -Force)",
+      "Bash(New-Item -Path \"C:\\\\Projects\\\\sta-orm\\\\docs\\\\collections.md\" -ItemType File -Force)",
+      "Bash(New-Item -Path \"C:\\\\Projects\\\\sta-orm\\\\docs\\\\mutators-casting.md\" -ItemType File -Force)",
+      "Bash(New-Item -Path \"C:\\\\Projects\\\\sta-orm\\\\docs\\\\serialization.md\" -ItemType File -Force)",
+      "Bash(New-Item -Path \"C:\\\\Projects\\\\sta-orm\\\\docs\\\\scopes-events.md\" -ItemType File -Force)",
+      "Bash(New-Item -Path \"C:\\\\Projects\\\\sta-orm\\\\docs\\\\api-resources.md\" -ItemType File -Force)",
+      "Bash(New-Item -Path \"C:\\\\Projects\\\\sta-orm\\\\docs\\\\factories.md\" -ItemType File -Force)",
+      "Bash(New-Item -Path \"C:\\\\Projects\\\\sta-orm\\\\docs\\\\pagination.md\" -ItemType File -Force)",
+      "Bash(New-Item -Path \"C:\\\\Projects\\\\sta-orm\\\\docs\\\\soft-deletes.md\" -ItemType File -Force)",
+      "Bash(New-Item -Path \"C:\\\\Projects\\\\sta-orm\\\\docs\\\\pruning.md\" -ItemType File -Force)",
+      "Bash(New-Item -Path \"C:\\\\Projects\\\\sta-orm\\\\docs\\\\uuid-ulid.md\" -ItemType File -Force)",
+      "Bash(New-Item -Path \"C:\\\\Projects\\\\sta-orm\\\\docs\\\\schema-migrations.md\" -ItemType File -Force)",
+      "PowerShell(New-Item -ItemType Directory -Path \"C:\\\\Projects\\\\sta-orm\\\\docs\" -Force)",
+      "PowerShell(\"done\")",
+      "PowerShell(Get-ChildItem C:\\\\Projects\\\\sta-orm\\\\docs\\\\ | Select-Object Name, @{N='KB';E={[math]::Round\\($_.Length/1KB,1\\)}})",
+      "WebFetch(domain:registry.npmjs.org)"
+    ]
+  }
+}

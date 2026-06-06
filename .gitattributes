@@ -1,0 +1,22 @@
+# Normalize line endings to LF on commit for all text files
+* text=auto eol=lf
+
+# Force LF for source files
+*.ts   text eol=lf
+*.js   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.sh   text eol=lf
+
+# Windows scripts keep CRLF
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+# Binary files — no line ending conversion
+*.png  binary
+*.jpg  binary
+*.gif  binary
+*.ico  binary
+*.node binary

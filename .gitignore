@@ -1,0 +1,35 @@
+# Build output
+dist/
+*.js.map
+*.d.ts.map
+
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.test.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# TypeScript cache
+*.tsbuildinfo

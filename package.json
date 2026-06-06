@@ -1,0 +1,116 @@
+{
+  "name": "@wrsouza/orion",
+  "version": "0.1.0",
+  "description": "Eloquent-inspired Active Record ORM for TypeScript — PostgreSQL, MySQL, MariaDB, SQLite, SQL Server",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "bin": {
+    "orion": "dist/cli/index.js"
+  },
+  "files": [
+    "dist",
+    "docs",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky",
+    "prepublishOnly": "npm run typecheck && npm run lint && npm run build"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "keywords": [
+    "orion",
+    "orm",
+    "active-record",
+    "eloquent",
+    "typescript",
+    "postgres",
+    "postgresql",
+    "mysql",
+    "mariadb",
+    "sqlite",
+    "sqlserver",
+    "database",
+    "query-builder",
+    "migrations"
+  ],
+  "author": {
+    "name": "wrsouza",
+    "url": "https://github.com/wrsouza"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wrsouza/orion.git"
+  },
+  "homepage": "https://github.com/wrsouza/orion#readme",
+  "bugs": {
+    "url": "https://github.com/wrsouza/orion/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/mssql": "^12.3.0",
+    "@types/node": "^20.0.0",
+    "@types/pg": "^8.11.0",
+    "@typescript-eslint/eslint-plugin": "^8.60.1",
+    "@typescript-eslint/parser": "^8.60.1",
+    "eslint": "^10.4.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.6",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
+    "prettier": "^3.8.3",
+    "typescript": "^5.4.0"
+  },
+  "peerDependenciesMeta": {
+    "pg": {
+      "optional": true
+    },
+    "mysql2": {
+      "optional": true
+    },
+    "mariadb": {
+      "optional": true
+    },
+    "better-sqlite3": {
+      "optional": true
+    },
+    "mssql": {
+      "optional": true
+    }
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^12.10.0",
+    "mariadb": "^3.5.2",
+    "mssql": "^12.5.5",
+    "mysql2": "^3.22.5",
+    "pg": "^8.12.0"
+  }
+}
