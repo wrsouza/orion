@@ -23,7 +23,6 @@ import type { EagerConstraint } from './EagerLoader';
 
 type ModelSubclass<T extends Model> = {
   new (): T;
-  [key: string]: unknown;
 } & typeof Model;
 
 // ── Proxy handler for dirty tracking ─────────────────────────────────────
