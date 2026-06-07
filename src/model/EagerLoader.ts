@@ -1,6 +1,7 @@
 import type { Model } from './Model';
 import type { ModelBuilder } from './ModelBuilder';
 import type { Relation } from './relations/Relation';
+import { noConstraints } from './relations/RelationConstraints';
 
 /** Constraint function that can be passed to `with()` to narrow an eager load. */
 export type EagerConstraint = (query: ModelBuilder<any>) => void;
@@ -120,7 +121,9 @@ export class EagerLoader {
     const method = (model as any)[name];
     if (typeof method !== 'function') return null;
     try {
-      const result = method.call(model);
+      // noConstraints disables the base WHERE added in relation constructors so
+      // addEagerConstraints can replace it with a whereIn across all parent ids.
+      const result = noConstraints(() => method.call(model));
       return result != null &&
         typeof result.getResults === 'function' &&
         typeof result.addEagerConstraints === 'function'

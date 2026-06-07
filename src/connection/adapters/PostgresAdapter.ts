@@ -1,5 +1,7 @@
 import { Pool, PoolClient, PoolConfig } from 'pg';
 import { Connection, QueryResult } from '../Connection';
+import { PostgresQueryGrammar } from '../../query/grammars/PostgresQueryGrammar';
+import type { QueryGrammar } from '../../query/grammars/QueryGrammar';
 
 export interface PostgresConfig extends PoolConfig {
   host: string;
@@ -64,6 +66,10 @@ export class PostgresAdapter implements Connection {
   isConnected(): boolean {
     return this.connected;
   }
+
+  getGrammar(): QueryGrammar {
+    return new PostgresQueryGrammar();
+  }
 }
 
 class PostgresTransactionAdapter implements Connection {
@@ -96,5 +102,9 @@ class PostgresTransactionAdapter implements Connection {
 
   isConnected(): boolean {
     return true;
+  }
+
+  getGrammar(): QueryGrammar {
+    return new PostgresQueryGrammar();
   }
 }

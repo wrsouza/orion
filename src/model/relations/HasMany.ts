@@ -2,6 +2,7 @@ import type { Model } from '../Model';
 import { Collection } from '../Collection';
 import { ModelCollection } from '../ModelCollection';
 import { Relation } from './Relation';
+import { _skipRelationConstraints } from './RelationConstraints';
 
 /**
  * Represents a one-to-many relationship where the foreign key lives on the
@@ -29,6 +30,18 @@ export class HasMany<TRelated extends object> extends Relation<TRelated> {
   /** When `true`, each loaded child has its parent stored in `_relations['parent']`. */
   private _chaperone = false;
 
+  constructor(
+    relatedClass: import('../ModelBuilder').ModelConstructor<TRelated>,
+    parent: import('../Model').Model,
+    foreignKey: string,
+    localKey: string
+  ) {
+    super(relatedClass, parent, foreignKey, localKey);
+    if (!_skipRelationConstraints) {
+      this.where(this.foreignKey, this.getParentKey());
+    }
+  }
+
   /**
    * Enable parent back-reference hydration.
    * After eager loading, each related model will have the parent model stored
@@ -52,7 +65,6 @@ export class HasMany<TRelated extends object> extends Relation<TRelated> {
 
   async getResults(): Promise<Collection<TRelated>> {
     this._checkLazyLoading();
-    this.where(this.foreignKey, this.getParentKey());
     const results = await this.get();
     if (this._chaperone) {
       for (const child of results) {

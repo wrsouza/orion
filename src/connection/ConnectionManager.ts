@@ -63,6 +63,11 @@ const URL_DRIVER_MAP: Record<string, DriverName> = {
  * ```
  */
 export function parseConnectionUrl(url: string): ConnectionConfig {
+  // Handle sqlite://:memory: before URL parsing (invalid hostname for URL spec)
+  if (url === 'sqlite://:memory:') {
+    return { driver: 'sqlite', filename: ':memory:' };
+  }
+
   let parsed: URL;
   try {
     parsed = new URL(url);

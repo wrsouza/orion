@@ -1,5 +1,7 @@
 import mariadb, { Pool, PoolConnection, PoolConfig } from 'mariadb';
 import { Connection, QueryResult } from '../Connection';
+import { MariaDBQueryGrammar } from '../../query/grammars/MariaDBQueryGrammar';
+import type { QueryGrammar } from '../../query/grammars/QueryGrammar';
 
 export interface MariaDBConfig extends PoolConfig {
   host: string;
@@ -76,6 +78,10 @@ export class MariaDBAdapter implements Connection {
   isConnected(): boolean {
     return this.connected;
   }
+
+  getGrammar(): QueryGrammar {
+    return new MariaDBQueryGrammar();
+  }
 }
 
 class MariaDBTransactionAdapter implements Connection {
@@ -121,5 +127,9 @@ class MariaDBTransactionAdapter implements Connection {
 
   isConnected(): boolean {
     return true;
+  }
+
+  getGrammar(): QueryGrammar {
+    return new MariaDBQueryGrammar();
   }
 }

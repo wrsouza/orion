@@ -22,7 +22,9 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "build:watch": "tsc --watch",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
@@ -90,7 +92,8 @@
     "lint-staged": "^15.5.2",
     "prettier": "^3.8.3",
     "typescript": "^5.4.0",
-    "vitepress": "^1.6.4"
+    "vitepress": "^1.6.4",
+    "vitest": "^4.1.8"
   },
   "peerDependenciesMeta": {
     "pg": {

@@ -1,5 +1,7 @@
 import * as mssql from 'mssql';
 import { Connection, QueryResult } from '../Connection';
+import { SQLServerQueryGrammar } from '../../query/grammars/SQLServerQueryGrammar';
+import type { QueryGrammar } from '../../query/grammars/QueryGrammar';
 
 export interface SQLServerConfig {
   host: string;
@@ -105,6 +107,10 @@ export class SQLServerAdapter implements Connection {
   isConnected(): boolean {
     return this.connected;
   }
+
+  getGrammar(): QueryGrammar {
+    return new SQLServerQueryGrammar();
+  }
 }
 
 class SQLServerTransactionAdapter implements Connection {
@@ -156,5 +162,9 @@ class SQLServerTransactionAdapter implements Connection {
 
   isConnected(): boolean {
     return true;
+  }
+
+  getGrammar(): QueryGrammar {
+    return new SQLServerQueryGrammar();
   }
 }

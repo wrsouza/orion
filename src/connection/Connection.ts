@@ -35,4 +35,7 @@ export interface Connection {
 
   /** Returns `true` if at least one successful query has been made. */
   isConnected(): boolean;
+
+  /** Returns the query grammar appropriate for this driver. */
+  getGrammar(): import('../query/grammars/QueryGrammar').QueryGrammar;
 }

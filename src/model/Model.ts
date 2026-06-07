@@ -53,6 +53,10 @@ function makeProxy<T extends Model>(instance: T): T {
       if (typeof prop === 'symbol' || prop.startsWith('_')) {
         return Reflect.set(target, prop, value);
       }
+      // Model instance properties (not DB columns) — bypass _attributes
+      if (prop === 'exists' || prop === 'wasRecentlyCreated') {
+        return Reflect.set(target, prop, value);
+      }
       // Check for a registered @mutator setter — it takes full responsibility
       // for writing the transformed value into _attributes.
       const cfg = ModelMetadata.get(target.constructor as Function);
@@ -278,7 +282,11 @@ export class Model {
     const cfg = ModelMetadata.get(this);
     const connName = cfg.connection ?? undefined;
     const connection = ConnectionManager.getConnection(connName);
-    const builder = new ModelBuilder<T>(this as unknown as ModelConstructor<T>, connection);
+    const builder = new ModelBuilder<T>(
+      this as unknown as ModelConstructor<T>,
+      connection,
+      connection.getGrammar()
+    );
 
     return new Proxy(builder, {
       get(target, prop: string | symbol) {

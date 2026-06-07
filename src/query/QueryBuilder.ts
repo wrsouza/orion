@@ -642,7 +642,7 @@ export class QueryBuilder {
   async insertGetId(values: Record<string, unknown>): Promise<unknown> {
     const { sql, bindings } = this.grammar.compileInsertGetId(this, values);
     const result = await this.connection.query(sql, bindings);
-    return result.rows[0]?.[this.primaryKey] ?? null;
+    return result.rows[0]?.[this.primaryKey] ?? result.lastInsertRowid ?? null;
   }
 
   /**

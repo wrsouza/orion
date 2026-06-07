@@ -1,5 +1,7 @@
 import { createPool, Pool, PoolConnection, PoolOptions } from 'mysql2/promise';
 import { Connection, QueryResult } from '../Connection';
+import { MySQLQueryGrammar } from '../../query/grammars/MySQLQueryGrammar';
+import type { QueryGrammar } from '../../query/grammars/QueryGrammar';
 
 export interface MySQLConfig extends PoolOptions {
   host: string;
@@ -63,6 +65,10 @@ export class MySQLAdapter implements Connection {
   isConnected(): boolean {
     return this.connected;
   }
+
+  getGrammar(): QueryGrammar {
+    return new MySQLQueryGrammar();
+  }
 }
 
 class MySQLTransactionAdapter implements Connection {
@@ -99,5 +105,9 @@ class MySQLTransactionAdapter implements Connection {
 
   isConnected(): boolean {
     return true;
+  }
+
+  getGrammar(): QueryGrammar {
+    return new MySQLQueryGrammar();
   }
 }

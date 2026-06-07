@@ -1,5 +1,6 @@
 import type { Model } from '../Model';
 import { ModelBuilder, ModelConstructor } from '../ModelBuilder';
+import { _skipRelationConstraints, noConstraints } from './RelationConstraints';
 import { Collection } from '../Collection';
 import { ConnectionManager } from '../../connection/ConnectionManager';
 import { ModelMetadata } from '../ModelMetadata';
@@ -26,6 +27,14 @@ export type { ModelConstructor };
  * - `getExistsQuery()` — correlated SQL for `has()` / `whereHas()` subqueries
  */
 export abstract class Relation<TRelated extends object> extends ModelBuilder<TRelated> {
+  /** @internal exposed for subclasses; use RelationConstraints.noConstraints() externally */
+  protected static get _withoutConstraints(): boolean {
+    return _skipRelationConstraints;
+  }
+
+  static noConstraints<T>(fn: () => T): T {
+    return noConstraints(fn);
+  }
   /** The parent model instance that owns this relation. */
   protected readonly parent: Model;
   /** FK column name used to join parent ↔ related. Varies by relation type. */
@@ -41,7 +50,7 @@ export abstract class Relation<TRelated extends object> extends ModelBuilder<TRe
   ) {
     const cfg = ModelMetadata.resolve(parent);
     const connection = ConnectionManager.getConnection(cfg.connection ?? undefined);
-    super(relatedClass, connection);
+    super(relatedClass, connection, connection.getGrammar());
     this.parent = parent;
     this.foreignKey = foreignKey;
     this.localKey = localKey;

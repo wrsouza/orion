@@ -132,10 +132,18 @@ export class ModelBuilder<T extends object> {
 
   /** @internal Apply registered global scopes to the internal QueryBuilder. */
   private _applyGlobalScopes(): void {
-    const cfg = ModelMetadata.get(this.modelClass as unknown as Function);
-    for (const [name, entry] of cfg.globalScopes) {
-      if (this._removedScopes.has(name)) continue;
-      entry.scope.apply(this, this.modelClass as unknown as Function);
+    // Walk the prototype chain so scopes registered on mixin base classes
+    // (e.g. SoftDeletable from SoftDeletes(Model)) are inherited by subclasses.
+    const seen = new Set<string>();
+    let target: Function | null = this.modelClass as unknown as Function;
+    while (target && target !== Function.prototype) {
+      const cfg = ModelMetadata.get(target);
+      for (const [name, entry] of cfg.globalScopes) {
+        if (seen.has(name) || this._removedScopes.has(name)) continue;
+        seen.add(name);
+        entry.scope.apply(this, this.modelClass as unknown as Function);
+      }
+      target = Object.getPrototypeOf(target);
     }
   }
 

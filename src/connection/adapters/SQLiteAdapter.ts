@@ -1,5 +1,7 @@
 import Database, { Database as DatabaseType } from 'better-sqlite3';
 import { Connection, QueryResult } from '../Connection';
+import { SQLiteQueryGrammar } from '../../query/grammars/SQLiteQueryGrammar';
+import type { QueryGrammar } from '../../query/grammars/QueryGrammar';
 
 export interface SQLiteConfig {
   /** Path to the database file, or `':memory:'` for an in-memory database. */
@@ -27,19 +29,21 @@ export class SQLiteAdapter implements Connection {
   async query(sql: string, bindings: unknown[] = []): Promise<QueryResult> {
     const stmt = this.db.prepare(sql);
     const trimmed = sql.trimStart().toUpperCase();
+    // SQLite only accepts numbers, strings, bigints, buffers, null — coerce Date to ISO string
+    const bound = bindings.map((v) => (v instanceof Date ? v.toISOString() : v));
 
     if (
       trimmed.startsWith('SELECT') ||
       trimmed.startsWith('WITH') ||
       trimmed.startsWith('PRAGMA')
     ) {
-      const rows = stmt.all(...bindings) as Record<string, unknown>[];
+      const rows = stmt.all(...bound) as Record<string, unknown>[];
       const fields = rows.length > 0 ? Object.keys(rows[0]).map((name) => ({ name })) : [];
       return { rows, rowCount: rows.length, fields };
     }
 
     // INSERT / UPDATE / DELETE / DDL
-    const info = stmt.run(...bindings);
+    const info = stmt.run(...bound);
     return {
       rows: [],
       rowCount: info.changes,
@@ -70,6 +74,10 @@ export class SQLiteAdapter implements Connection {
     return this.db.open;
   }
 
+  getGrammar(): QueryGrammar {
+    return new SQLiteQueryGrammar();
+  }
+
   /** Direct access to the underlying better-sqlite3 instance. */
   getDatabase(): DatabaseType {
     return this.db;
@@ -84,18 +92,19 @@ class SQLiteTransactionAdapter implements Connection {
   async query(sql: string, bindings: unknown[] = []): Promise<QueryResult> {
     const stmt = this.db.prepare(sql);
     const trimmed = sql.trimStart().toUpperCase();
+    const bound = bindings.map((v) => (v instanceof Date ? v.toISOString() : v));
 
     if (
       trimmed.startsWith('SELECT') ||
       trimmed.startsWith('WITH') ||
       trimmed.startsWith('PRAGMA')
     ) {
-      const rows = stmt.all(...bindings) as Record<string, unknown>[];
+      const rows = stmt.all(...bound) as Record<string, unknown>[];
       const fields = rows.length > 0 ? Object.keys(rows[0]).map((name) => ({ name })) : [];
       return { rows, rowCount: rows.length, fields };
     }
 
-    const info = stmt.run(...bindings);
+    const info = stmt.run(...bound);
     return {
       rows: [],
       rowCount: info.changes,
@@ -123,5 +132,9 @@ class SQLiteTransactionAdapter implements Connection {
 
   isConnected(): boolean {
     return this.db.open;
+  }
+
+  getGrammar(): QueryGrammar {
+    return new SQLiteQueryGrammar();
   }
 }

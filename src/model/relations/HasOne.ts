@@ -1,6 +1,7 @@
 import type { Model } from '../Model';
 import { Collection } from '../Collection';
 import { Relation } from './Relation';
+import { _skipRelationConstraints } from './RelationConstraints';
 
 /**
  * Represents a one-to-one relationship where the foreign key lives on the
@@ -27,6 +28,18 @@ import { Relation } from './Relation';
 export class HasOne<TRelated extends object> extends Relation<TRelated> {
   private _ofManyColumn: string | null = null;
   private _ofManyDirection: 'asc' | 'desc' = 'desc';
+
+  constructor(
+    relatedClass: import('../ModelBuilder').ModelConstructor<TRelated>,
+    parent: import('../Model').Model,
+    foreignKey: string,
+    localKey: string
+  ) {
+    super(relatedClass, parent, foreignKey, localKey);
+    if (!_skipRelationConstraints) {
+      this.where(this.foreignKey, this.getParentKey());
+    }
+  }
 
   // ── "Has One of Many" variants ────────────────────────────────────────────
 
@@ -75,7 +88,6 @@ export class HasOne<TRelated extends object> extends Relation<TRelated> {
 
   async getResults(): Promise<TRelated | null> {
     this._checkLazyLoading();
-    this.where(this.foreignKey, this.getParentKey());
     if (this._ofManyColumn) {
       this.orderBy(this._ofManyColumn, this._ofManyDirection);
     }
