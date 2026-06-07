@@ -3,7 +3,6 @@
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Configuration](#configuration)
-  - [SQLite](#sqlite-configuration)
   - [Multiple Connections](#multiple-connections)
 - [Defining Models](#defining-models)
   - [Table Names](#table-names)
@@ -66,117 +65,42 @@ Enable TypeScript decorators in your `tsconfig.json`:
 
 ## Configuration
 
-Create `orion.config.js` at your project root:
-
-```js
-// orion.config.js
-module.exports = {
-  connection: {
-    driver: 'postgres',
-    host: process.env.DB_HOST || 'localhost',
-    port: 5432,
-    database: process.env.DB_NAME || 'myapp',
-    user:     process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASS || '',
-    ssl: false,
-    pool: {
-      max: 10,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 5000,
-    },
-  },
-  migrations: {
-    path:  './database/migrations',
-    table: 'orion_migrations', // default — tracks migration history
-  },
-};
-```
-
-Bootstrap the connection in your application entry point (once, at startup):
+Create a `src/database.ts` file and call `createConnection()` — this is the single source of truth for your connection, migrations path, and optional behaviours. The Orion CLI auto-detects this file, so no extra config is needed.
 
 ```ts
-import { ConnectionManager } from '@wrsouza/orion';
-import config from './orion.config.js';
+// src/database.ts
+import { createConnection } from '@wrsouza/orion';
 
-ConnectionManager.addConnection('default', config.connection);
+export default createConnection({
+  connection: process.env.DATABASE_URL,
+  migrations: { path: './src/database/migrations' },
+  preventLazyLoading: process.env.NODE_ENV !== 'production',
+});
 ```
 
-### Connection via URL
-
-The most common pattern in cloud environments is a single `DATABASE_URL` environment variable. Use `addConnectionUrl()` to connect directly from a URL — the driver is inferred from the scheme:
+Then import it once at your application entry point:
 
 ```ts
-import { ConnectionManager } from '@wrsouza/orion';
-
-ConnectionManager.addConnectionUrl('default', process.env.DATABASE_URL!);
+import './database'; // connection registered — ready to use
 ```
 
-Supported URL schemes:
-
-| Scheme | Driver |
-|--------|--------|
-| `postgres://` or `postgresql://` | PostgreSQL |
-| `mysql://` | MySQL |
-| `mariadb://` | MariaDB |
-| `sqlserver://` or `mssql://` | SQL Server |
-| `sqlite:///` | SQLite (file) |
-| `sqlite://:memory:` | SQLite (in-memory) |
-
-Examples:
-
-```
-postgres://alice:secret@db.example.com:5432/myapp?ssl=true
-mysql://root:pass@127.0.0.1:3306/myapp
-mariadb://user:pass@localhost/myapp
-sqlserver://sa:Pass123@localhost:1433/myapp
-sqlite:///./database/app.db
-sqlite://:memory:
-```
-
-Query string parameters:
-
-| Parameter | Description |
-|-----------|-------------|
-| `ssl=true` | Enable SSL/TLS |
-| `ssl=false` | Disable SSL/TLS |
-| `pool_max=10` | Maximum pool size |
-
-You can also use `parseConnectionUrl()` if you need the parsed config object separately:
-
-```ts
-import { parseConnectionUrl, ConnectionManager } from '@wrsouza/orion';
-
-const config = parseConnectionUrl(process.env.DATABASE_URL!);
-// { driver: 'postgres', host: 'db.example.com', port: 5432, database: 'myapp', ... }
-
-ConnectionManager.addConnection('default', { ...config, pool: { max: 20 } });
-```
-
-### SQLite Configuration
-
-```js
-module.exports = {
-  connection: {
-    driver:   'sqlite',
-    filename: './database/app.db', // or ':memory:' for in-memory
-  },
-};
-```
+For full details — all drivers, framework-specific examples (Express, Fastify, NestJS, Next.js, React Router), multiple connections, and URL reference — see the **[Connection](/connection)** guide.
 
 ### Multiple Connections
 
 ```ts
-ConnectionManager.addConnection('primary', {
-  driver: 'postgres', host: 'db-primary', database: 'app',
-  user: 'pg', password: process.env.PRIMARY_PASS,
+// src/database.ts
+import { createConnection, ConnectionManager } from '@wrsouza/orion';
+
+export default createConnection({
+  connection: process.env.DATABASE_URL,
+  migrations: { path: './src/database/migrations' },
 });
 
 ConnectionManager.addConnection('replica', {
   driver: 'postgres', host: 'db-replica', database: 'app',
   user: 'pg_ro', password: process.env.REPLICA_PASS,
 });
-
-ConnectionManager.setDefaultConnection('primary');
 ```
 
 Assign a model to a specific connection:

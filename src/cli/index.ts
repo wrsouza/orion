@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { loadConfig } from './utils/config';
-import { bold, cyan, dim, red } from './utils/colors';
+import { bold, cyan, red } from './utils/colors';
 
 const COMMANDS = [
   'migrate',
@@ -27,28 +27,47 @@ ${bold('Commands:')}
   ${cyan('make:migration')} <name>     Create a new migration file
   ${cyan('model:prune')} [--model=X] [--chunk=N]  Delete prunable records
 
-${bold('Config:')}
-  Create a ${dim('orion.config.js')} file in your project root.
+${bold('Options:')}
+  ${cyan('--config')} <path>           Path to config file (optional)
 
-${bold('Example config:')}
+${bold('Config — recommended (src/database.ts):')}
+  import { createConnection } from '@wrsouza/orion';
+
+  export default createConnection({
+    connection: process.env.DATABASE_URL,
+    migrations: { path: './src/database/migrations' },
+  });
+
+${bold('Config — legacy (orion.config.js):')}
   module.exports = {
-    connection: {
-      driver: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      database: 'mydb',
-      user: 'postgres',
-      password: 'secret',
-    },
-    migrations: {
-      path: './database/migrations',
-    },
+    connection: { driver: 'postgres', host: 'localhost', database: 'mydb',
+                  user: 'postgres', password: 'secret' },
+    migrations: { path: './database/migrations' },
   };
+
+${bold('Auto-detected paths (in order):')}
+  orion.config.ts  |  orion.config.js  |  src/database.ts  |  database.ts
 `);
 }
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
+
+  // --config <path> or --config=<path>
+  const configFlagIndex = args.findIndex((a) => a === '--config' || a.startsWith('--config='));
+  let configPath: string | undefined;
+  if (configFlagIndex !== -1) {
+    if (args[configFlagIndex].includes('=')) {
+      configPath = args[configFlagIndex].split('=')[1];
+    } else {
+      configPath = args[configFlagIndex + 1];
+      args.splice(configFlagIndex, 2);
+    }
+    if (configFlagIndex !== -1 && !configPath?.includes('=')) {
+      args.splice(configFlagIndex, 1);
+    }
+  }
+
   const command = args[0];
 
   if (!command || command === '--help' || command === '-h') {
@@ -64,7 +83,7 @@ async function main(): Promise<void> {
 
   let config;
   try {
-    config = loadConfig();
+    config = loadConfig(process.cwd(), configPath);
   } catch (err) {
     console.error(red(`\n  ${(err as Error).message}\n`));
     process.exit(1);
@@ -111,7 +130,7 @@ async function main(): Promise<void> {
       const modelFlag = args.find((a) => a.startsWith('--model='));
       const chunkFlag = args.find((a) => a.startsWith('--chunk='));
       const { pruneCommand } = await import('./commands/PruneCommand');
-      await pruneCommand(config as any, {
+      await pruneCommand(config, {
         model: modelFlag ? modelFlag.split('=')[1] : undefined,
         chunk: chunkFlag ? parseInt(chunkFlag.split('=')[1], 10) : undefined,
       });

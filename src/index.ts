@@ -1,3 +1,6 @@
+// Bootstrap
+export { createConnection, OrionConfig } from './configure';
+
 // Connection
 export { Connection, QueryResult } from './connection/Connection';
 export {
