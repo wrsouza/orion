@@ -241,34 +241,7 @@ The Orion CLI searches for your config file in this order:
 | 6 | `src/orion.ts` |
 | 7 | `orion.ts` |
 
-The recommended approach is `src/database.ts`. Running any CLI command just works:
-
-```bash
-npm run migrate
-npm run migrate:status
-npm run migrate:rollback
-```
-
-### Custom Config Path
-
-If your config lives outside the default paths, use the `--config` flag:
-
-```bash
-# From package.json script
-node -r ts-node/register node_modules/@wrsouza/orion/dist/cli/index.js \
-  --config config/database.ts migrate
-
-# Any path, absolute or relative
-npx orion --config src/infra/db/connection.ts migrate:status
-```
-
----
-
-## Framework Integration
-
-All examples follow the same pattern: create `src/database.ts` once, then import it at your framework's entry point. The CLI picks it up automatically.
-
-Add these scripts to your `package.json`:
+The recommended approach is `src/database.ts`. Because the config file is TypeScript, the CLI must be invoked through `ts-node/register` — add these scripts to your `package.json` once and use them from then on:
 
 ```json
 {
@@ -281,6 +254,38 @@ Add these scripts to your `package.json`:
   }
 }
 ```
+
+Then use the scripts normally:
+
+```bash
+npm run migrate
+npm run migrate:status
+npm run migrate:rollback
+```
+
+::: warning Avoid npx orion directly
+Running `npx orion migrate` without `ts-node/register` will fail with
+_"Cannot use import statement outside a module"_ when your config file is TypeScript.
+Always use the `npm run` scripts shown above.
+:::
+
+### Custom Config Path
+
+If your config lives outside the default auto-detected paths, use the `--config` flag in your `package.json` script:
+
+```json
+{
+  "scripts": {
+    "migrate": "node -r ts-node/register node_modules/@wrsouza/orion/dist/cli/index.js --config config/database.ts migrate"
+  }
+}
+```
+
+---
+
+## Framework Integration
+
+All examples follow the same pattern: create `src/database.ts` once, then import it at your framework's entry point. The `package.json` scripts from the [Config File Auto-detection](#config-file-auto-detection) section handle the CLI for all frameworks.
 
 ### Express
 
