@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import './bootstrap'; // must be first — auto-registers ts-node before any require()
 import { loadConfig } from './utils/config';
 import { bold, cyan, red } from './utils/colors';
 

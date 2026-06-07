@@ -241,21 +241,27 @@ The Orion CLI searches for your config file in this order:
 | 6 | `src/orion.ts` |
 | 7 | `orion.ts` |
 
-The recommended approach is `src/database.ts`. Because the config file is TypeScript, the CLI must be invoked through `ts-node/register` — add these scripts to your `package.json` once and use them from then on:
+The recommended approach is `src/database.ts`. The CLI auto-detects it and, if `ts-node` is installed in your project, loads it transparently — no wrapper needed.
+
+```bash
+npx orion migrate
+npx orion migrate:status
+npx orion migrate:rollback
+```
+
+You can also add shorthand scripts to your `package.json`:
 
 ```json
 {
   "scripts": {
-    "migrate":          "node -r ts-node/register node_modules/@wrsouza/orion/dist/cli/index.js migrate",
-    "migrate:rollback": "node -r ts-node/register node_modules/@wrsouza/orion/dist/cli/index.js migrate:rollback",
-    "migrate:reset":    "node -r ts-node/register node_modules/@wrsouza/orion/dist/cli/index.js migrate:reset",
-    "migrate:status":   "node -r ts-node/register node_modules/@wrsouza/orion/dist/cli/index.js migrate:status",
-    "make:migration":   "node -r ts-node/register node_modules/@wrsouza/orion/dist/cli/index.js make:migration"
+    "migrate":          "orion migrate",
+    "migrate:rollback": "orion migrate:rollback",
+    "migrate:reset":    "orion migrate:reset",
+    "migrate:status":   "orion migrate:status",
+    "make:migration":   "orion make:migration"
   }
 }
 ```
-
-Then use the scripts normally:
 
 ```bash
 npm run migrate
@@ -263,22 +269,20 @@ npm run migrate:status
 npm run migrate:rollback
 ```
 
-::: warning Avoid npx orion directly
-Running `npx orion migrate` without `ts-node/register` will fail with
-_"Cannot use import statement outside a module"_ when your config file is TypeScript.
-Always use the `npm run` scripts shown above.
+::: tip ts-node required
+The CLI auto-registers `ts-node` from your project's `node_modules` before loading any `.ts` file. Make sure `ts-node` is listed in your `devDependencies`:
+
+```bash
+npm install -D ts-node
+```
 :::
 
 ### Custom Config Path
 
-If your config lives outside the default auto-detected paths, use the `--config` flag in your `package.json` script:
+If your config lives outside the default auto-detected paths, use the `--config` flag:
 
-```json
-{
-  "scripts": {
-    "migrate": "node -r ts-node/register node_modules/@wrsouza/orion/dist/cli/index.js --config config/database.ts migrate"
-  }
-}
+```bash
+npx orion --config config/database.ts migrate
 ```
 
 ---
