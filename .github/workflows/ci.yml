@@ -26,7 +26,7 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: npm ci --ignore-scripts
+        run: npm ci
 
       - name: Type-check
         run: npx tsc --noEmit
@@ -42,3 +42,6 @@ jobs:
 
       - name: Verify dist exports
         run: node -e "const orion = require('./dist/index.js'); console.log('exports ok:', Object.keys(orion).length, 'symbols')"
+
+      - name: Test
+        run: npm test
