@@ -30,24 +30,6 @@ ${bold('Commands:')}
 
 ${bold('Options:')}
   ${cyan('--config')} <path>           Path to config file (optional)
-
-${bold('Config — recommended (src/database.ts):')}
-  import { createConnection } from '@wrsouza/orion';
-
-  export default createConnection({
-    connection: process.env.DATABASE_URL,
-    migrations: { path: './src/database/migrations' },
-  });
-
-${bold('Config — legacy (orion.config.js):')}
-  module.exports = {
-    connection: { driver: 'postgres', host: 'localhost', database: 'mydb',
-                  user: 'postgres', password: 'secret' },
-    migrations: { path: './database/migrations' },
-  };
-
-${bold('Auto-detected paths (in order):')}
-  orion.config.ts  |  orion.config.js  |  src/database.ts  |  database.ts
 `);
 }
 
