@@ -54,8 +54,16 @@ export class Migrator {
       const name = this.getMigrationName(file);
       const migration = await this.resolve(file);
 
-      await migration.up();
-      await this.repo.log(name, batch);
+      // Wrap each migration in a transaction so a partial failure
+      // (e.g. FK constraint after CREATE TABLE) is fully rolled back.
+      // On PostgreSQL, SQLite and SQL Server, DDL is transactional.
+      // On MySQL/MariaDB, DDL causes an implicit commit, so the CREATE TABLE
+      // may survive, but at least the migration is never logged as "ran".
+      await this.connection.transaction(async () => {
+        await migration.up();
+        await this.repo.log(name, batch);
+      });
+
       executed.push(name);
     }
 
@@ -82,8 +90,12 @@ export class Migrator {
       }
 
       const migration = await this.resolve(file);
-      await migration.down();
-      await this.repo.delete(record.migration);
+
+      await this.connection.transaction(async () => {
+        await migration.down();
+        await this.repo.delete(record.migration);
+      });
+
       rolled.push(record.migration);
     }
 
@@ -105,8 +117,12 @@ export class Migrator {
         throw new Error(`[orion] Migration file not found for: ${record.migration}`);
       }
       const migration = await this.resolve(file);
-      await migration.down();
-      await this.repo.delete(record.migration);
+
+      await this.connection.transaction(async () => {
+        await migration.down();
+        await this.repo.delete(record.migration);
+      });
+
       rolled.push(record.migration);
     }
 
