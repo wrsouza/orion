@@ -23,6 +23,16 @@ export interface OrionConfig {
     table?: string;
   };
 
+  seeders?: {
+    /** Path to the seeders directory. Default: `./database/seeders` */
+    path?: string;
+    /**
+     * Entry-point seeder class name used by `db:seed` when no `--class` flag
+     * is passed. Default: `DatabaseSeeder`
+     */
+    entry?: string;
+  };
+
   /**
    * Polymorphic type aliases. Registered once at startup so morph columns
    * store short names instead of full class names.

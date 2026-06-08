@@ -9,6 +9,10 @@ export interface OrmConfig {
     path: string;
     table?: string;
   };
+  seeders: {
+    path: string;
+    entry: string;
+  };
 }
 
 /**
@@ -55,6 +59,19 @@ export function resolveMigrationsPath(config: OrmConfig, cwd = process.cwd()): s
     : path.join(cwd, config.migrations.path);
 }
 
+export function resolveSeedersPath(config: OrmConfig, cwd = process.cwd()): string {
+  return path.isAbsolute(config.seeders.path)
+    ? config.seeders.path
+    : path.join(cwd, config.seeders.path);
+}
+
+export function resolveFactoriesPath(config: OrmConfig, cwd = process.cwd()): string {
+  // Factories live alongside models — derive from migrations path convention:
+  // ./src/database/migrations → ./src/database/factories
+  const base = resolveMigrationsPath(config, cwd);
+  return path.join(path.dirname(base), 'factories');
+}
+
 // ── Internal ──────────────────────────────────────────────────────────────────
 
 function normalise(exported: unknown, file: string): OrmConfig {
@@ -73,11 +90,22 @@ function normalise(exported: unknown, file: string): OrmConfig {
       ? resolveUrl(connection, file)
       : (connection as ConnectionConfig);
 
+  const { seeders } = exported as OrionConfig;
+
+  // Derive sibling directory paths from the migrations path so they all
+  // live under the same base (e.g. src/database/migrations → src/database/seeders)
+  const migrationsPath = migrations?.path ?? './database/migrations';
+  const dbBase = migrationsPath.replace(/[\\/]migrations$/, '');
+
   return {
     connection: resolvedConnection,
     migrations: {
-      path: migrations?.path ?? './database/migrations',
+      path: migrationsPath,
       table: migrations?.table,
+    },
+    seeders: {
+      path: seeders?.path ?? `${dbBase}/seeders`,
+      entry: seeders?.entry ?? 'DatabaseSeeder',
     },
   };
 }

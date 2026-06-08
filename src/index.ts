@@ -110,6 +110,9 @@ export { LazyLoadingViolationError } from './errors/LazyLoadingViolationError';
 export { Factory } from './factory/Factory';
 export { Sequence } from './factory/Sequence';
 
+// Seeds
+export { Seeder } from './seeds/Seeder';
+
 // API Resources
 export { Resource, ConditionalValue, MergeValue, ResourceResponse } from './resources/Resource';
 export { ResourceCollection } from './resources/ResourceCollection';

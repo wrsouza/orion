@@ -11,6 +11,9 @@ const COMMANDS = [
   'migrate:status',
   'make:migration',
   'model:prune',
+  'db:seed',
+  'make:seed',
+  'make:factory',
 ];
 
 function printHelp(): void {
@@ -21,12 +24,16 @@ ${bold('Usage:')}
   orion <command> [options]
 
 ${bold('Commands:')}
-  ${cyan('migrate')}                   Run all pending migrations
-  ${cyan('migrate:rollback')} [--step=N]  Rollback the last N batches (default: 1)
-  ${cyan('migrate:reset')}             Rollback all migrations
-  ${cyan('migrate:status')}            Show the status of each migration
-  ${cyan('make:migration')} <name>     Create a new migration file
+  ${cyan('migrate')}                        Run all pending migrations
+  ${cyan('migrate:rollback')} [--step=N]       Rollback the last N batches (default: 1)
+  ${cyan('migrate:reset')}                  Rollback all migrations
+  ${cyan('migrate:status')}                 Show the status of each migration
+  ${cyan('make:migration')} <name>          Create a new migration file
   ${cyan('model:prune')} [--model=X] [--chunk=N]  Delete prunable records
+
+  ${cyan('db:seed')} [--class=SeederName]   Run seeders (default: DatabaseSeeder)
+  ${cyan('make:seed')} <name>               Create a new seeder file
+  ${cyan('make:factory')} <name>            Create a new factory file
 
 ${bold('Options:')}
   ${cyan('--config')} <path>           Path to config file (optional)
@@ -117,6 +124,28 @@ async function main(): Promise<void> {
         model: modelFlag ? modelFlag.split('=')[1] : undefined,
         chunk: chunkFlag ? parseInt(chunkFlag.split('=')[1], 10) : undefined,
       });
+      break;
+    }
+
+    case 'db:seed': {
+      const classFlag = args.find((a) => a.startsWith('--class='));
+      const seederClass = classFlag ? classFlag.split('=')[1] : undefined;
+      const { seedCommand } = await import('./commands/SeedCommand');
+      await seedCommand(config, seederClass);
+      break;
+    }
+
+    case 'make:seed': {
+      const seederName = args.slice(1).join(' ');
+      const { makeSeederCommand } = await import('./commands/MakeSeederCommand');
+      await makeSeederCommand(config, seederName);
+      break;
+    }
+
+    case 'make:factory': {
+      const factoryName = args.slice(1).join(' ');
+      const { makeFactoryCommand } = await import('./commands/MakeFactoryCommand');
+      await makeFactoryCommand(config, factoryName);
       break;
     }
   }
