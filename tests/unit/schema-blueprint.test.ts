@@ -224,15 +224,32 @@ describe('Blueprint – column definitions', () => {
     expect(col.enumValues).toEqual(['active', 'inactive']);
   });
 
-  it('foreignId() returns unsigned bigInteger', () => {
-    const col = new Blueprint('t').foreignId('user_id');
-    expect(col.type).toBe('bigInteger');
-    expect(col.modifiers.unsigned).toBe(true);
+  it('foreignId() adds unsigned bigInteger column and returns ForeignKeyDefinition', () => {
+    const bp = new Blueprint('t');
+    const fk = bp.foreignId('user_id');
+    // Column was added
+    expect(bp.columns[0].type).toBe('bigInteger');
+    expect(bp.columns[0].modifiers.unsigned).toBe(true);
+    // Returns ForeignKeyDefinition for chaining
+    expect(fk).toBeInstanceOf(ForeignKeyDefinition);
+    expect(bp.foreignKeys).toHaveLength(1);
   });
 
-  it('foreignUuid() returns uuid column', () => {
-    const col = new Blueprint('t').foreignUuid('order_id');
-    expect(col.type).toBe('uuid');
+  it('foreignUuid() adds uuid column and returns ForeignKeyDefinition', () => {
+    const bp = new Blueprint('t');
+    const fk = bp.foreignUuid('order_id');
+    // Column was added
+    expect(bp.columns[0].type).toBe('uuid');
+    // Returns ForeignKeyDefinition for chaining
+    expect(fk).toBeInstanceOf(ForeignKeyDefinition);
+    expect(bp.foreignKeys).toHaveLength(1);
+  });
+
+  it('foreignId() supports full FK chain', () => {
+    const bp = new Blueprint('posts');
+    bp.foreignId('user_id').references('id').on('users').onDelete('CASCADE');
+    expect(bp.foreignKeys[0].referencedTable).toBe('users');
+    expect(bp.foreignKeys[0].onDeleteAction).toBe('CASCADE');
   });
 });
 

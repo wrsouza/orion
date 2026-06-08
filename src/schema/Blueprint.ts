@@ -224,12 +224,36 @@ export class Blueprint {
     return fk;
   }
 
-  foreignId(name: string): ColumnDefinition {
-    return this.unsignedBigInteger(name);
+  /**
+   * Add an unsigned big integer column AND register a foreign key constraint
+   * that can be fully configured via chaining.
+   *
+   * @example
+   * ```ts
+   * table.foreignId('user_id').references('id').on('users').onDelete('CASCADE');
+   * ```
+   */
+  foreignId(name: string): ForeignKeyDefinition {
+    this.unsignedBigInteger(name);
+    const fk = new ForeignKeyDefinition(name);
+    this.foreignKeys.push(fk);
+    return fk;
   }
 
-  foreignUuid(name: string): ColumnDefinition {
-    return this.uuid(name);
+  /**
+   * Add a UUID column AND register a foreign key constraint
+   * that can be fully configured via chaining.
+   *
+   * @example
+   * ```ts
+   * table.foreignUuid('user_id').references('id').on('users').onDelete('CASCADE');
+   * ```
+   */
+  foreignUuid(name: string): ForeignKeyDefinition {
+    this.uuid(name);
+    const fk = new ForeignKeyDefinition(name);
+    this.foreignKeys.push(fk);
+    return fk;
   }
 
   // ── Drop helpers (used in alter table) ────────────────────────────────────

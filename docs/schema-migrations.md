@@ -69,13 +69,16 @@ export default class CreateUsersTable extends Migration {
 ## Migration Structure
 
 ```ts
-import { Migration, Blueprint, Schema } from '@wrsouza/orion';
+import { Migration, Blueprint } from '@wrsouza/orion';
 
 export default class CreatePostsTable extends Migration {
   async up(): Promise<void> {
     await this.Schema.create('posts', (table: Blueprint) => {
-      table.id();
-      table.foreignId('user_id').references('id').on('users').onDelete('CASCADE');
+      table.uuid('id').primary();
+
+      // foreignId / foreignUuid: creates the column AND the FK constraint in one call
+      table.foreignUuid('user_id').references('id').on('users').onDelete('CASCADE');
+
       table.string('title');
       table.text('body').nullable();
       table.boolean('published').default(false);
@@ -88,6 +91,17 @@ export default class CreatePostsTable extends Migration {
     await this.Schema.dropIfExists('posts');
   }
 }
+```
+
+`foreignId` and `foreignUuid` create the column **and** register the foreign key in a single fluent call. Separate calls are only needed when you want to declare the column and the constraint independently:
+
+```ts
+// One-liner (recommended)
+table.foreignUuid('author_id').references('id').on('users').onDelete('SET NULL');
+
+// Equivalent two-step form
+table.uuid('author_id');
+table.foreign('author_id').references('id').on('users').onDelete('SET NULL');
 ```
 
 `this.Schema` is pre-configured with the default connection. Use `this.connection` to run raw queries:
