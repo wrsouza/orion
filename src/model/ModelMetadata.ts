@@ -66,6 +66,12 @@ export interface ModelConfig {
   resourceClass: (new (resource: any) => any) | null;
   /** ResourceCollection class bound via `@UseResourceCollection`. */
   resourceCollectionClass: (new (items: any[], resourceClass?: any) => any) | null;
+  /**
+   * Property-to-column name mapping set by `@map('column_name')`.
+   * Key = JS property name, value = DB column name.
+   * e.g. `'createdAt' → 'created_at'`
+   */
+  columnMap: Map<string, string>;
 }
 
 /**
@@ -224,6 +230,7 @@ const defaults = (): ModelConfig => ({
   dynamicRelations: new Map(),
   resourceClass: null,
   resourceCollectionClass: null,
+  columnMap: new Map(),
 });
 
 /**
@@ -268,6 +275,7 @@ export class ModelMetadata {
       dynamicRelations: new Map(parentConfig.dynamicRelations),
       resourceClass: parentConfig.resourceClass,
       resourceCollectionClass: parentConfig.resourceCollectionClass,
+      columnMap: new Map(parentConfig.columnMap),
     });
   }
 }

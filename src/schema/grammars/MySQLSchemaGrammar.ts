@@ -98,9 +98,11 @@ export class MySQLSchemaGrammar implements SchemaGrammar {
       parts.push('UNSIGNED');
     }
 
-    // AUTO_INCREMENT types already embed NOT NULL in the type string
+    // AUTO_INCREMENT types already embed NOT NULL + PRIMARY KEY in the type string
     if (!isAutoIncrement) {
-      if (!col.modifiers.nullable) {
+      if (col.modifiers.primary) {
+        parts.push('NOT NULL PRIMARY KEY');
+      } else if (!col.modifiers.nullable) {
         parts.push('NOT NULL');
       } else {
         parts.push('NULL');

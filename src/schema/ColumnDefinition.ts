@@ -36,6 +36,8 @@ export interface ColumnModifiers {
   after: string | null;
   first: boolean;
   autoIncrement: boolean;
+  /** When true, the column is emitted with an inline PRIMARY KEY constraint. */
+  primary: boolean;
 }
 
 export class ColumnDefinition {
@@ -57,6 +59,7 @@ export class ColumnDefinition {
     after: null,
     first: false,
     autoIncrement: false,
+    primary: false,
   };
 
   constructor(name: string, type: ColumnType) {
@@ -87,6 +90,21 @@ export class ColumnDefinition {
 
   unsigned(): this {
     this.modifiers.unsigned = true;
+    return this;
+  }
+
+  /**
+   * Mark this column as the table's primary key.
+   * Emits an inline `PRIMARY KEY` constraint in the generated DDL.
+   *
+   * @example
+   * ```ts
+   * table.uuid('id').primary()
+   * table.string('slug', 100).primary()
+   * ```
+   */
+  primary(): this {
+    this.modifiers.primary = true;
     return this;
   }
 

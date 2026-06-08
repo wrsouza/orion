@@ -83,7 +83,10 @@ export class PostgresSchemaGrammar implements SchemaGrammar {
   private compileColumn(col: ColumnDefinition): string {
     const parts: string[] = [this.wrap(col.name), this.getColumnType(col)];
 
-    if (!col.modifiers.nullable) {
+    if (col.modifiers.primary) {
+      // PRIMARY KEY implies NOT NULL — no need to repeat it
+      parts.push('PRIMARY KEY');
+    } else if (!col.modifiers.nullable) {
       parts.push('NOT NULL');
     } else {
       parts.push('NULL');

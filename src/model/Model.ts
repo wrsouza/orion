@@ -42,9 +42,11 @@ function makeProxy<T extends Model>(instance: T): T {
         // Return a function so usage is `model.latestOrder()` (consistent with real relations)
         return () => closure(receiver);
       }
-      // Attribute read — apply cast if configured
-      if (prop in target._attributes) {
-        return target._castGet(prop, target._attributes[prop]);
+      // Attribute read — resolve @map alias then apply cast
+      const columnMap = ModelMetadata.get(target.constructor as Function).columnMap;
+      const readKey = columnMap.get(prop) ?? prop;
+      if (readKey in target._attributes) {
+        return target._castGet(prop, target._attributes[readKey]);
       }
       return val;
     },
@@ -64,7 +66,9 @@ function makeProxy<T extends Model>(instance: T): T {
         return true;
       }
       // For class-based casts, transform the value before storing.
-      target._attributes[prop] = target._castSet(prop, value);
+      // Resolve @map alias so camelCase properties write to the correct DB column.
+      const writeKey = cfg.columnMap.get(prop) ?? prop;
+      target._attributes[writeKey] = target._castSet(prop, value);
       return true;
     },
   });
@@ -1085,7 +1089,9 @@ export class Model {
 
     for (const [key, value] of Object.entries(attributes)) {
       if (this._isFillable(key, cfg)) {
-        this._attributes[key] = value;
+        // Resolve @map alias: { createdAt: v } → _attributes['created_at'] = v
+        const colName = cfg.columnMap.get(key) ?? key;
+        this._attributes[colName] = value;
       } else if (Model._strictMassAssign) {
         throw new Error(
           `[orion] Add [${key}] to fillable on [${this.constructor.name}] to allow mass assignment.`
@@ -1113,7 +1119,11 @@ export class Model {
     const dirty = this._getDirtyAttributes();
     if (!columns) return Object.keys(dirty).length > 0;
     const cols = Array.isArray(columns) ? columns : [columns];
-    return cols.some((c) => c in dirty);
+    const { columnMap } = ModelMetadata.resolve(this);
+    return cols.some((c) => {
+      const colName = columnMap.get(c) ?? c;
+      return colName in dirty;
+    });
   }
 
   /** Inverse of `isDirty`. */
@@ -1132,15 +1142,20 @@ export class Model {
   wasChanged(columns?: string | string[]): boolean {
     if (!columns) return Object.keys(this._changes).length > 0;
     const cols = Array.isArray(columns) ? columns : [columns];
-    return cols.some((c) => c in this._changes);
+    const { columnMap } = ModelMetadata.resolve(this);
+    return cols.some((c) => {
+      const colName = columnMap.get(c) ?? c;
+      return colName in this._changes;
+    });
   }
 
   /** Original value of an attribute as loaded from the database. */
   getOriginal(): Record<string, unknown>;
   getOriginal(column: string): unknown;
   getOriginal(column?: string): unknown {
-    if (!column) return { ...this._original };
-    return this._original[column];
+    const { columnMap } = ModelMetadata.resolve(this);
+    if (!column) return this._applyReverseMap(this._original, columnMap);
+    return this._original[columnMap.get(column) ?? column];
   }
 
   /**
@@ -1148,7 +1163,8 @@ export class Model {
    * Available immediately after calling `save()`.
    */
   getChanges(): Record<string, unknown> {
-    return { ...this._changes };
+    const { columnMap } = ModelMetadata.resolve(this);
+    return this._applyReverseMap(this._changes, columnMap);
   }
 
   /**
@@ -1158,8 +1174,28 @@ export class Model {
   getPrevious(): Record<string, unknown>;
   getPrevious(column: string): unknown;
   getPrevious(column?: string): unknown {
-    if (!column) return { ...this._previous };
-    return this._previous[column];
+    const { columnMap } = ModelMetadata.resolve(this);
+    if (!column) return this._applyReverseMap(this._previous, columnMap);
+    return this._previous[columnMap.get(column) ?? column];
+  }
+
+  /**
+   * Convert a raw `_attributes`-keyed object (column names) to an object
+   * keyed by property names, applying the reverse of `columnMap`.
+   * Columns with no mapping pass through unchanged.
+   */
+  private _applyReverseMap(
+    source: Record<string, unknown>,
+    columnMap: Map<string, string>
+  ): Record<string, unknown> {
+    if (columnMap.size === 0) return { ...source };
+    const reverse = new Map<string, string>();
+    for (const [prop, col] of columnMap) reverse.set(col, prop);
+    const result: Record<string, unknown> = {};
+    for (const [key, val] of Object.entries(source)) {
+      result[reverse.get(key) ?? key] = val;
+    }
+    return result;
   }
 
   private _getDirtyAttributes(): Record<string, unknown> {
@@ -1857,16 +1893,25 @@ export class Model {
    * Does **not** include loaded relations.
    */
   attributesToArray(): Record<string, unknown> {
+    const cfg = ModelMetadata.resolve(this);
     const { allowlist, denylist } = this._effectiveVisible();
     const result: Record<string, unknown> = {};
 
+    // Build reverse map once: db column → property name
+    const reverseMap = new Map<string, string>();
+    for (const [prop, col] of cfg.columnMap) reverseMap.set(col, prop);
+
     for (const [key, raw] of Object.entries(this._attributes)) {
-      if (allowlist !== null && !allowlist.includes(key)) continue;
-      if (denylist.has(key)) continue;
-      let cast = this._castGet(key, raw);
+      // Use property name in output (e.g. 'createdAt' instead of 'created_at')
+      const outputKey = reverseMap.get(key) ?? key;
+      if (allowlist !== null && !allowlist.includes(outputKey) && !allowlist.includes(key))
+        continue;
+      if (denylist.has(outputKey) || denylist.has(key)) continue;
+      // Cast uses property name as the lookup key
+      let cast = this._castGet(outputKey, raw);
       // Apply serializeDate for any Date values that reach serialization
       if (cast instanceof Date) cast = this.serializeDate(cast);
-      result[key] = cast;
+      result[outputKey] = cast;
     }
 
     // Append computed accessors

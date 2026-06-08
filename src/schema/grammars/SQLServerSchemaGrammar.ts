@@ -98,7 +98,9 @@ export class SQLServerSchemaGrammar implements SchemaGrammar {
     const parts: string[] = [this.wrap(col.name), this.getColumnType(col)];
 
     if (!isIdentity) {
-      if (!col.modifiers.nullable) {
+      if (col.modifiers.primary) {
+        parts.push('NOT NULL PRIMARY KEY');
+      } else if (!col.modifiers.nullable) {
         parts.push('NOT NULL');
       } else {
         parts.push('NULL');

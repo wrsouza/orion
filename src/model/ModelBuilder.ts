@@ -83,6 +83,15 @@ export class ModelBuilder<T extends object> {
     this._qb.primaryKey = modelClass.getPrimaryKey();
   }
 
+  /**
+   * Resolve a property name to its mapped DB column name.
+   * If no `@map` is set for the property, the name is returned as-is.
+   */
+  private col(column: string): string {
+    const map = ModelMetadata.get(this.modelClass as unknown as Function).columnMap;
+    return map.get(column) ?? column;
+  }
+
   // ── Global scopes ─────────────────────────────────────────────────────────
 
   /**
@@ -192,12 +201,12 @@ export class ModelBuilder<T extends object> {
   // ── SELECT ────────────────────────────────────────────────────────────────
 
   select(...columns: (string | Expression)[]): this {
-    this._qb.select(...columns);
+    this._qb.select(...columns.map((c) => (typeof c === 'string' ? this.col(c) : c)));
     return this;
   }
 
   addSelect(...columns: (string | Expression)[]): this {
-    this._qb.addSelect(...columns);
+    this._qb.addSelect(...columns.map((c) => (typeof c === 'string' ? this.col(c) : c)));
     return this;
   }
 
@@ -225,10 +234,11 @@ export class ModelBuilder<T extends object> {
     operatorOrValue?: unknown,
     value?: unknown
   ): this {
+    const col = typeof column === 'string' ? this.col(column) : column;
     if (value !== undefined) {
-      this._qb.where(column as string, operatorOrValue, value);
+      this._qb.where(col as string, operatorOrValue, value);
     } else {
-      this._qb.where(column as string, operatorOrValue);
+      this._qb.where(col as string, operatorOrValue);
     }
     return this;
   }
@@ -238,71 +248,72 @@ export class ModelBuilder<T extends object> {
     operatorOrValue?: unknown,
     value?: unknown
   ): this {
+    const col = typeof column === 'string' ? this.col(column) : column;
     if (value !== undefined) {
-      this._qb.orWhere(column as string, operatorOrValue, value);
+      this._qb.orWhere(col as string, operatorOrValue, value);
     } else {
-      this._qb.orWhere(column as string, operatorOrValue);
+      this._qb.orWhere(col as string, operatorOrValue);
     }
     return this;
   }
 
   whereIn(column: string, values: unknown[] | QueryBuilder): this {
-    this._qb.whereIn(column, values);
+    this._qb.whereIn(this.col(column), values);
     return this;
   }
 
   orWhereIn(column: string, values: unknown[] | QueryBuilder): this {
-    this._qb.orWhereIn(column, values);
+    this._qb.orWhereIn(this.col(column), values);
     return this;
   }
 
   whereNotIn(column: string, values: unknown[] | QueryBuilder): this {
-    this._qb.whereNotIn(column, values);
+    this._qb.whereNotIn(this.col(column), values);
     return this;
   }
 
   orWhereNotIn(column: string, values: unknown[] | QueryBuilder): this {
-    this._qb.orWhereNotIn(column, values);
+    this._qb.orWhereNotIn(this.col(column), values);
     return this;
   }
 
   whereNull(column: string): this {
-    this._qb.whereNull(column);
+    this._qb.whereNull(this.col(column));
     return this;
   }
 
   orWhereNull(column: string): this {
-    this._qb.orWhereNull(column);
+    this._qb.orWhereNull(this.col(column));
     return this;
   }
 
   whereNotNull(column: string): this {
-    this._qb.whereNotNull(column);
+    this._qb.whereNotNull(this.col(column));
     return this;
   }
 
   orWhereNotNull(column: string): this {
-    this._qb.orWhereNotNull(column);
+    this._qb.orWhereNotNull(this.col(column));
     return this;
   }
 
   whereBetween(column: string, range: [unknown, unknown]): this {
-    this._qb.whereBetween(column, range);
+    this._qb.whereBetween(this.col(column), range);
     return this;
   }
 
   whereNotBetween(column: string, range: [unknown, unknown]): this {
-    this._qb.whereNotBetween(column, range);
+    this._qb.whereNotBetween(this.col(column), range);
     return this;
   }
 
   whereColumn(first: string, operatorOrSecond: string, second?: string): this {
-    this._qb.whereColumn(first, operatorOrSecond, second!);
+    this._qb.whereColumn(this.col(first), operatorOrSecond, second ? this.col(second) : second!);
     return this;
   }
 
   orWhereColumn(first: string, operatorOrSecond: string, second?: string): this {
-    this._qb.orWhereColumn(first, operatorOrSecond, second!);
+    this._qb.orWhereColumn(this.col(first), operatorOrSecond, second ? this.col(second) : second!);
     return this;
   }
 
@@ -366,22 +377,22 @@ export class ModelBuilder<T extends object> {
   // ── ORDER BY ──────────────────────────────────────────────────────────────
 
   orderBy(column: string, direction: 'asc' | 'desc' = 'asc'): this {
-    this._qb.orderBy(column, direction);
+    this._qb.orderBy(this.col(column), direction);
     return this;
   }
 
   orderByDesc(column: string): this {
-    this._qb.orderByDesc(column);
+    this._qb.orderByDesc(this.col(column));
     return this;
   }
 
   latest(column = 'created_at'): this {
-    this._qb.latest(column);
+    this._qb.latest(this.col(column));
     return this;
   }
 
   oldest(column = 'created_at'): this {
-    this._qb.oldest(column);
+    this._qb.oldest(this.col(column));
     return this;
   }
 
@@ -393,17 +404,17 @@ export class ModelBuilder<T extends object> {
   // ── GROUP BY / HAVING ─────────────────────────────────────────────────────
 
   groupBy(...columns: string[]): this {
-    this._qb.groupBy(...columns);
+    this._qb.groupBy(...columns.map((c) => this.col(c)));
     return this;
   }
 
   having(column: string, operator: string, value: unknown): this {
-    this._qb.having(column, operator, value);
+    this._qb.having(this.col(column), operator, value);
     return this;
   }
 
   orHaving(column: string, operator: string, value: unknown): this {
-    this._qb.orHaving(column, operator, value);
+    this._qb.orHaving(this.col(column), operator, value);
     return this;
   }
 

@@ -72,6 +72,7 @@ export { Stringable } from './model/Model';
 export type { CipherContract } from './model/Model';
 export { scope, scopedBy } from './model/decorators/scope';
 export { observedBy } from './model/decorators/observe';
+export { map } from './model/decorators/map';
 export { ModelEvent, ModelListener } from './model/events/ModelEvents';
 export { EventDispatcher, withoutEvents } from './model/events/EventDispatcher';
 export { Observer } from './model/events/Observer';
