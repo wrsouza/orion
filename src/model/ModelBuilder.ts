@@ -1288,7 +1288,15 @@ export class ModelBuilder<T extends object> {
     clone._applyGlobalScopes();
     clone._qb.limit(1);
     const rows = await clone._qb.get();
-    return rows[0] ? this.hydrate(rows[0]) : null;
+    if (!rows[0]) return null;
+
+    const model = this.hydrate(rows[0]);
+
+    if (this._eagerLoads.size > 0) {
+      await EagerLoader.load([model] as any[], this._eagerLoads, this.modelClass);
+    }
+
+    return model;
   }
 
   /** Return the first matching instance, or execute `callback` if none found. */

@@ -310,6 +310,23 @@ export class Model {
 
   // ── Static query API ──────────────────────────────────────────────────────
 
+  /**
+   * Eager-load one or more relations on the query.
+   *
+   * @example
+   * ```ts
+   * const users = await User.with('posts').get();
+   * const user  = await User.with(['posts', 'profile']).find(id);
+   * const posts = await Post.with({ comments: q => q.where('approved', true) }).get();
+   * ```
+   */
+  static with<T extends Model>(
+    this: ModelSubclass<T>,
+    relations: string | string[] | Record<string, EagerConstraint>
+  ): ModelBuilder<T> {
+    return this.query<T>().with(relations);
+  }
+
   /** Return all rows as a `Collection<T>`. */
   static async all<T extends Model>(this: ModelSubclass<T>): Promise<Collection<T>> {
     return this.query<T>().get();
