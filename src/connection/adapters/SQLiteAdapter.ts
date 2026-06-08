@@ -1,4 +1,4 @@
-import Database, { Database as DatabaseType } from 'better-sqlite3';
+import type { Database as DatabaseType } from 'better-sqlite3';
 import { Connection, QueryResult } from '../Connection';
 import { SQLiteQueryGrammar } from '../../query/grammars/SQLiteQueryGrammar';
 import type { QueryGrammar } from '../../query/grammars/QueryGrammar';
@@ -7,7 +7,7 @@ export interface SQLiteConfig {
   /** Path to the database file, or `':memory:'` for an in-memory database. */
   filename: string;
   /** better-sqlite3 open options (readonly, fileMustExist, timeout, etc.) */
-  options?: Database.Options;
+  options?: import('better-sqlite3').Options;
 }
 
 /**
@@ -19,6 +19,14 @@ export class SQLiteAdapter implements Connection {
   private db: DatabaseType;
 
   constructor(config: SQLiteConfig) {
+    let Database: typeof import('better-sqlite3');
+    try {
+      Database = require('better-sqlite3');
+    } catch {
+      throw new Error(
+        '[orion] SQLite driver not found. Install it with: npm install better-sqlite3'
+      );
+    }
     this.db = new Database(config.filename, config.options);
     // Enable WAL mode for better concurrent read performance
     this.db.pragma('journal_mode = WAL');

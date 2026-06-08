@@ -1,4 +1,4 @@
-import { createPool, Pool, PoolConnection, PoolOptions } from 'mysql2/promise';
+import type { Pool, PoolConnection, PoolOptions } from 'mysql2/promise';
 import { Connection, QueryResult } from '../Connection';
 import { MySQLQueryGrammar } from '../../query/grammars/MySQLQueryGrammar';
 import type { QueryGrammar } from '../../query/grammars/QueryGrammar';
@@ -20,7 +20,13 @@ export class MySQLAdapter implements Connection {
   private connected = false;
 
   constructor(config: MySQLConfig) {
-    this.pool = createPool({
+    let mysql2: typeof import('mysql2/promise');
+    try {
+      mysql2 = require('mysql2/promise');
+    } catch {
+      throw new Error('[orion] MySQL driver not found. Install it with: npm install mysql2');
+    }
+    this.pool = mysql2.createPool({
       ...config,
       // mysql2 returns arrays for rows by default; ensure objects
       rowsAsArray: false,

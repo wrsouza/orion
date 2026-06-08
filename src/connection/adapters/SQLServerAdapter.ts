@@ -1,4 +1,4 @@
-import * as mssql from 'mssql';
+import type * as mssql from 'mssql';
 import { Connection, QueryResult } from '../Connection';
 import { SQLServerQueryGrammar } from '../../query/grammars/SQLServerQueryGrammar';
 import type { QueryGrammar } from '../../query/grammars/QueryGrammar';
@@ -26,9 +26,15 @@ export interface SQLServerConfig {
 export class SQLServerAdapter implements Connection {
   private pool: mssql.ConnectionPool;
   private connected = false;
+  private _mssql: typeof mssql;
 
   constructor(config: SQLServerConfig) {
-    this.pool = new mssql.ConnectionPool({
+    try {
+      this._mssql = require('mssql');
+    } catch {
+      throw new Error('[orion] SQL Server driver not found. Install it with: npm install mssql');
+    }
+    this.pool = new this._mssql.ConnectionPool({
       server: config.host,
       port: config.port ?? 1433,
       database: config.database,
@@ -84,10 +90,10 @@ export class SQLServerAdapter implements Connection {
 
   async transaction<T>(callback: (conn: Connection) => Promise<T>): Promise<T> {
     const pool = await this.getPool();
-    const tx = new mssql.Transaction(pool);
+    const tx = new this._mssql.Transaction(pool);
     await tx.begin();
 
-    const txConn = new SQLServerTransactionAdapter(tx);
+    const txConn = new SQLServerTransactionAdapter(tx, this._mssql);
 
     try {
       const result = await callback(txConn);
@@ -116,10 +122,13 @@ export class SQLServerAdapter implements Connection {
 class SQLServerTransactionAdapter implements Connection {
   private _savepointIndex = 0;
 
-  constructor(private tx: mssql.Transaction) {}
+  constructor(
+    private tx: mssql.Transaction,
+    private _mssql: typeof mssql
+  ) {}
 
   async query(sql: string, bindings: unknown[] = []): Promise<QueryResult> {
-    const request = new mssql.Request(this.tx);
+    const request = new this._mssql.Request(this.tx);
 
     bindings.forEach((val, i) => {
       request.input(`p${i + 1}`, val);
@@ -142,7 +151,7 @@ class SQLServerTransactionAdapter implements Connection {
   async transaction<T>(callback: (conn: Connection) => Promise<T>): Promise<T> {
     // SQL Server uses SAVE TRANSACTION (not SAVEPOINT)
     const sp = `orion_sp_${++this._savepointIndex}`;
-    const request = new mssql.Request(this.tx);
+    const request = new this._mssql.Request(this.tx);
     await request.query(`SAVE TRANSACTION ${sp}`);
 
     try {
@@ -150,7 +159,7 @@ class SQLServerTransactionAdapter implements Connection {
       // No RELEASE equivalent in SQL Server — just continue
       return result;
     } catch (err) {
-      const rollbackReq = new mssql.Request(this.tx);
+      const rollbackReq = new this._mssql.Request(this.tx);
       await rollbackReq.query(`ROLLBACK TRANSACTION ${sp}`);
       throw err;
     }

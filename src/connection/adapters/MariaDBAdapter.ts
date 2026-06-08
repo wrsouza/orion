@@ -1,4 +1,4 @@
-import mariadb, { Pool, PoolConnection, PoolConfig } from 'mariadb';
+import type { Pool, PoolConnection, PoolConfig } from 'mariadb';
 import { Connection, QueryResult } from '../Connection';
 import { MariaDBQueryGrammar } from '../../query/grammars/MariaDBQueryGrammar';
 import type { QueryGrammar } from '../../query/grammars/QueryGrammar';
@@ -19,6 +19,12 @@ export class MariaDBAdapter implements Connection {
   private connected = false;
 
   constructor(config: MariaDBConfig) {
+    let mariadb: typeof import('mariadb');
+    try {
+      mariadb = require('mariadb');
+    } catch {
+      throw new Error('[orion] MariaDB driver not found. Install it with: npm install mariadb');
+    }
     this.pool = mariadb.createPool({
       ...config,
       // Return plain objects, not MariaDB row objects
