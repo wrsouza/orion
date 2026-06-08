@@ -68,6 +68,15 @@ orion adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `ConnectionConfig` supporting all five drivers
 - Husky hooks missing `#!/bin/sh` shebang on Windows
 
+## [0.2.1] — 2026-06-08
+
+### Fixed
+
+- Lazy-load driver packages in adapters — `mysql2`, `mariadb`, `mssql` and
+  `better-sqlite3` are now `require()`d inside the constructor instead of at
+  module load time. Projects that only install `pg` no longer fail with
+  `Cannot find module 'mysql2/promise'` on startup.
+
 ## [Unreleased]
 
 ### Added
