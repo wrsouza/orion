@@ -7,6 +7,67 @@ orion adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.2.0] — 2026-06-08
+
+### Added
+
+#### Centralised configuration — `createConnection()`
+- New `createConnection(config: OrionConfig)` function as the single entry point for
+  bootstrapping connection, morph map, and lazy-loading guard in one call
+- Accepts `connection` as a URL string or a full `ConnectionConfig` object
+- Optional `morphs`, `preventLazyLoading`, `migrations`, and `seeders` fields
+- The CLI auto-detects `src/database.ts`, `database.ts`, `src/orion.ts` in addition
+  to the legacy `orion.config.*` files
+
+#### CLI improvements
+- `--config <path>` flag for non-standard config file locations
+- CLI auto-registers `ts-node` from the project's `node_modules` — `npx orion migrate`
+  works out of the box without wrapper scripts
+- `db:seed [--class=Name]` — run seeders; falls back to alphabetical order when no
+  `DatabaseSeeder` entry point is found
+- `make:seed <name>` — scaffold a seeder file
+- `make:factory <name>` — scaffold a factory file
+- Fixed `make:migration` templates: import now uses `@wrsouza/orion` instead of `orion`
+
+#### Seeds
+- `Seeder` abstract base class with `run()` and `call([...seeders])` for chaining
+- Seeder and factory paths are derived from the migrations path (same `src/database/` base)
+
+#### `@map('column_name')` decorator
+- Maps a model property to a different DB column name (camelCase ↔ snake_case)
+- Transparent read/write via Proxy (`user.createdAt` ↔ `created_at` column)
+- `fill()`, `isDirty()`, `wasChanged()`, `getOriginal()`, `getPrevious()`,
+  `getChanges()` all accept property names
+- `attributesToArray()` / `toJSON()` outputs property names
+- `ModelBuilder.where/orderBy/groupBy/select/having` translate property names to
+  column names automatically
+
+#### `.primary()` column modifier
+- Fluent inline `PRIMARY KEY` on any column type: `table.uuid('id').primary()`
+- Replaces the two-step `table.uuid('id') + table.primary('id')` pattern
+- Supported in all five grammar dialects (Postgres, MySQL, MariaDB, SQLite, SQL Server)
+
+#### `foreignId` / `foreignUuid` fluent FK chaining
+- Both methods now create the column **and** register a `ForeignKeyDefinition`
+  for chaining: `table.foreignUuid('user_id').references('id').on('users').onDelete('CASCADE')`
+
+#### `Model.with()` static shortcut
+- `User.with('posts').get()` works directly without `User.query().with('posts')`
+- `ModelBuilder.first()` now applies eager loads (previously only `get()` did)
+
+#### Migration transactions
+- Each `up()` and `down()` now runs inside a database transaction
+- On failure, the table is fully rolled back and the migration is never logged as ran
+- Postgres, SQLite, SQL Server: complete DDL rollback; MySQL/MariaDB: DDL implicit commit
+  but migration state is never corrupted
+
+### Fixed
+- `ModelSubclass` index signature removed — user model classes no longer require
+  `[key: string]: unknown` in strict TypeScript mode (ts(2684))
+- `OrmConfig` in CLI previously accepted only `driver: 'postgres'`; now uses the full
+  `ConnectionConfig` supporting all five drivers
+- Husky hooks missing `#!/bin/sh` shebang on Windows
+
 ## [Unreleased]
 
 ### Added

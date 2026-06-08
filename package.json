@@ -1,6 +1,6 @@
 {
   "name": "@wrsouza/orion",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Eloquent-inspired Active Record ORM for TypeScript — PostgreSQL, MySQL, MariaDB, SQLite, SQL Server",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -56,7 +56,11 @@
     "sqlserver",
     "database",
     "query-builder",
-    "migrations"
+    "migrations",
+    "seeds",
+    "seeders",
+    "factories",
+    "decorators"
   ],
   "author": {
     "name": "wrsouza",
@@ -96,6 +100,13 @@
     "vitepress": "^1.6.4",
     "vitest": "^2.1.9"
   },
+  "peerDependencies": {
+    "pg": ">=8.0.0",
+    "mysql2": ">=3.0.0",
+    "mariadb": ">=3.0.0",
+    "better-sqlite3": ">=9.0.0",
+    "mssql": ">=10.0.0"
+  },
   "peerDependenciesMeta": {
     "pg": {
       "optional": true
@@ -112,12 +123,5 @@
     "mssql": {
       "optional": true
     }
-  },
-  "optionalDependencies": {
-    "better-sqlite3": "^12.10.0",
-    "mariadb": "^3.5.2",
-    "mssql": "^12.5.5",
-    "mysql2": "^3.22.5",
-    "pg": "^8.12.0"
   }
 }
