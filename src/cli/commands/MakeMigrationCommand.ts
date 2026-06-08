@@ -40,8 +40,8 @@ function generateTemplate(className: string, migrationName: string): string {
   const isCreate = /^create_/i.test(migrationName);
 
   if (isCreate && tableName) {
-    return `import { Migration } from 'orion';
-import { Blueprint } from 'orion';
+    return `import { Migration } from '@wrsouza/orion';
+import { Blueprint } from '@wrsouza/orion';
 
 export default class ${className} extends Migration {
   async up(): Promise<void> {
@@ -59,8 +59,8 @@ export default class ${className} extends Migration {
   }
 
   if (tableName) {
-    return `import { Migration } from 'orion';
-import { Blueprint } from 'orion';
+    return `import { Migration } from '@wrsouza/orion';
+import { Blueprint } from '@wrsouza/orion';
 
 export default class ${className} extends Migration {
   async up(): Promise<void> {
@@ -78,7 +78,7 @@ export default class ${className} extends Migration {
 `;
   }
 
-  return `import { Migration } from 'orion';
+  return `import { Migration } from '@wrsouza/orion';
 
 export default class ${className} extends Migration {
   async up(): Promise<void> {
