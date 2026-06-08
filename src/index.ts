@@ -73,6 +73,7 @@ export type { CipherContract } from './model/Model';
 export { scope, scopedBy } from './model/decorators/scope';
 export { observedBy } from './model/decorators/observe';
 export { map } from './model/decorators/map';
+export { uuid } from './model/decorators/uuid';
 export { ModelEvent, ModelListener } from './model/events/ModelEvents';
 export { EventDispatcher, withoutEvents } from './model/events/EventDispatcher';
 export { Observer } from './model/events/Observer';

@@ -72,6 +72,8 @@ export interface ModelConfig {
    * e.g. `'createdAt' → 'created_at'`
    */
   columnMap: Map<string, string>;
+  /** Fields marked with `@uuid()` that receive an auto-generated UUID v4 before INSERT. */
+  uuidFields: string[];
 }
 
 /**
@@ -231,6 +233,7 @@ const defaults = (): ModelConfig => ({
   resourceClass: null,
   resourceCollectionClass: null,
   columnMap: new Map(),
+  uuidFields: [],
 });
 
 /**

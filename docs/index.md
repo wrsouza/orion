@@ -49,14 +49,13 @@ npm install @wrsouza/orion pg
 ```
 
 ```ts
-import { ConnectionManager, Model, table, fillable, casts } from '@wrsouza/orion';
+import { ConnectionManager, Model, table, casts } from '@wrsouza/orion';
 
 // Connect
 ConnectionManager.addConnectionUrl('default', process.env.DATABASE_URL!);
 
 // Define a model
 @table('users')
-@fillable(['name', 'email'])
 @casts({ is_active: 'boolean', born_at: 'date' })
 class User extends Model {
   declare id: number;

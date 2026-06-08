@@ -13,21 +13,22 @@
 
 ## Introduction
 
-By default, Orion assumes an auto-incrementing integer primary key. The `HasUuids` and `HasUlids` mixins automatically generate a UUID or ULID value for the `id` column (and optionally other columns) before INSERT — no database trigger or sequence required.
+By default, Orion assumes an auto-incrementing integer primary key. Use the `@uuid()` decorator or the `HasUlids` mixin to automatically generate a UUID or ULID value for the `id` column before INSERT — no database trigger or sequence required.
 
 ---
 
-## HasUuids
+## UUID — `@uuid()`
 
-Apply `HasUuids` to generate a random UUID v4 as the primary key:
+Apply `@uuid()` to the primary key field to generate a random UUID v4 automatically:
 
 ```ts
-import { Model, HasUuids, table, fillable } from '@wrsouza/orion';
+import { Model, table, uuid } from '@wrsouza/orion';
 
 @table('posts')
-@fillable(['title', 'body'])
-class Post extends HasUuids(Model) {
-  declare id: string;     // UUID string, auto-generated on create
+class Post extends Model {
+  @uuid()
+  declare id: string;     // UUID v4, auto-generated on create
+
   declare title: string;
   declare body: string;
 }
@@ -36,41 +37,25 @@ const post = await Post.create({ title: 'Hello World', body: '...' });
 console.log(post.id); // 'f47ac10b-58cc-4372-a567-0e02b2c3d479'
 ```
 
-The model's `incrementing` flag is set to `false` and `keyType` to `'string'` automatically.
+`@uuid()` sets `incrementing: false` and `keyType: 'string'` automatically — no `@table` config needed.
 
 ### Multiple UUID Columns
 
-Override `uniqueIds()` to generate UUIDs for additional columns:
+Apply `@uuid()` to any additional columns that should also receive a generated UUID:
 
 ```ts
 @table('invitations')
-class Invitation extends HasUuids(Model) {
+class Invitation extends Model {
+  @uuid()
   declare id: string;
-  declare token: string;   // also gets a UUID
 
-  uniqueIds(): string[] {
-    return ['id', 'token'];
-  }
+  @uuid()
+  declare token: string;   // also gets a UUID
 }
 
 const invite = await Invitation.create({ email: 'alice@example.com' });
 console.log(invite.id);    // UUID
 console.log(invite.token); // different UUID
-```
-
-### Custom UUID Generator
-
-Override `newUniqueId()` to use a different generator — for example, UUID v7 (time-sortable):
-
-```ts
-import { v7 as uuidv7 } from 'uuid';
-
-@table('events')
-class Event extends HasUuids(Model) {
-  newUniqueId(): string {
-    return uuidv7(); // time-sortable UUID
-  }
-}
 ```
 
 ---
@@ -82,10 +67,9 @@ Apply `HasUlids` to generate a ULID (Universally Unique Lexicographically Sortab
 `HasUlids` has no external dependencies — it uses `crypto.getRandomValues()` from the Node.js built-in `crypto` module.
 
 ```ts
-import { Model, HasUlids, table, fillable } from '@wrsouza/orion';
+import { Model, HasUlids, table } from '@wrsouza/orion';
 
 @table('orders')
-@fillable(['total', 'status'])
 class Order extends HasUlids(Model) {
   declare id: string;    // ULID, auto-generated on create
   declare total: number;
@@ -155,7 +139,10 @@ Relationships work identically — Orion infers the correct key types:
 
 ```ts
 @table('posts')
-class Post extends HasUuids(Model) {
+class Post extends Model {
+  @uuid()
+  declare id: string;
+
   comments(): HasMany<Comment> {
     return this.hasMany(Comment);
     // FK inferred: comments.post_id (CHAR(36) / UUID column in DB)

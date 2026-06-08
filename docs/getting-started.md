@@ -115,10 +115,9 @@ class AnalyticsEvent extends Model {}
 ## Defining Models
 
 ```ts
-import { Model, table, fillable, guarded, casts, hidden, visible, appends } from '@wrsouza/orion';
+import { Model, table, casts, hidden, visible, appends } from '@wrsouza/orion';
 
 @table('users')
-@fillable(['name', 'email', 'password'])
 @hidden(['password', 'remember_token'])
 @casts({ is_active: 'boolean', settings: 'json', born_at: 'date' })
 class User extends Model {
@@ -156,6 +155,14 @@ The default primary key column is `id`, assumed to be an auto-incrementing integ
 Override key properties:
 
 ```ts
+// UUID primary key — @uuid() sets incrementing: false and keyType: 'string' automatically
+@table('articles')
+class Article extends Model {
+  @uuid()
+  declare id: string;
+}
+
+// Custom PK column name with manual config
 @table({ name: 'articles', primaryKey: 'article_uuid', incrementing: false, keyType: 'string' })
 class Article extends Model {
   declare article_uuid: string;
@@ -205,7 +212,7 @@ order.status; // 'pending'
 
 ### Strictness
 
-By default, assigning a non-fillable attribute is silently ignored. Enable strict mode to throw instead:
+By default, assigning an unknown attribute is silently ignored. Enable strict mode to throw instead:
 
 ```ts
 Model.preventSilentlyDiscardingAttributes();
@@ -324,16 +331,18 @@ await User.where('is_active', false).update({ status: 'archived' });
 
 ### Mass Assignment
 
-Orion requires explicit mass-assignment declaration:
+Orion accepts all columns by default. TypeScript's type system enforces what can be passed at compile time, so no runtime allowlist is needed:
 
 ```ts
-@fillable(['name', 'email'])    // allowlist — only these columns are accepted
+const user = await User.create({ name: 'Alice', email: 'alice@example.com' });
+// passing an unknown key → TypeScript compile error
+```
+
+Use `@hidden` to exclude sensitive fields from JSON serialization:
+
+```ts
+@hidden(['password'])
 class User extends Model {}
-
-@guarded(['is_admin'])          // blocklist — all columns except this one
-class Post extends Model {}
-
-// @guarded([]) — accept everything (disable all protection)
 ```
 
 ### Upserts

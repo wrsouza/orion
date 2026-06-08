@@ -10,18 +10,22 @@
 Orion gives you a fluent, expressive API for working with SQL databases in TypeScript. Models are plain classes. Relationships are method calls. Queries read like English.
 
 ```ts
-import { Model, table, fillable, hidden, map, HasUuids } from '@wrsouza/orion';
+import { Model, table, hidden, map, uuid } from '@wrsouza/orion';
 
-@table({ name: 'users', primaryKey: 'id', incrementing: false, keyType: 'string' })
-@fillable(['name', 'email', 'password'])
+@table('users')
 @hidden(['password'])
-class User extends HasUuids(Model) {
+class User extends Model {
+  @uuid()
   declare id: string;
+
   declare name: string;
   declare email: string;
 
-  @map('created_at') declare createdAt: Date;
-  @map('updated_at') declare updatedAt: Date;
+  @map('created_at')
+  declare createdAt: Date;
+
+  @map('updated_at')
+  declare updatedAt: Date;
 
   posts() {
     return this.hasMany(Post, 'user_id');
@@ -107,18 +111,22 @@ import './database';
 **3. Define models and query:**
 
 ```ts
-import { Model, table, fillable, casts, map, HasUuids } from '@wrsouza/orion';
+import { Model, table, casts, map, uuid } from '@wrsouza/orion';
 
-@table({ name: 'users', primaryKey: 'id', incrementing: false, keyType: 'string' })
-@fillable(['name', 'email'])
+@table('users')
 @casts({ createdAt: 'date', updatedAt: 'date' })
-class User extends HasUuids(Model) {
+class User extends Model {
+  @uuid()
   declare id: string;
+
   declare name: string;
   declare email: string;
 
-  @map('created_at') declare createdAt: Date;
-  @map('updated_at') declare updatedAt: Date;
+  @map('created_at')
+  declare createdAt: Date;
+
+  @map('updated_at')
+  declare updatedAt: Date;
 }
 
 const user  = await User.create({ name: 'Alice', email: 'alice@example.com' });
