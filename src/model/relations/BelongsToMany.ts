@@ -219,10 +219,13 @@ export class BelongsToMany<TRelated extends object> extends Relation<TRelated> {
   }
 
   match(parents: Model[], results: Collection<TRelated>, relation: string): Model[] {
-    // Group by the pivot FK that points to the parent
+    // Group by the pivot FK that points to the parent.
+    // get() already moved pivot columns out of _attributes into the PivotRecord,
+    // so read the FK from there instead of _attributes.
     const dict = new Map<unknown, TRelated[]>();
     for (const related of results) {
-      const fk = (related as any)._attributes[`pivot_${this.foreignPivotKey}`];
+      const pivot = (related as any)._relations[this._pivotAlias] as PivotRecord | undefined;
+      const fk = pivot?.get(this.foreignPivotKey);
       if (!dict.has(fk)) dict.set(fk, []);
       dict.get(fk)!.push(related);
     }

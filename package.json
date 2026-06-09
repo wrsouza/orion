@@ -1,6 +1,6 @@
 {
   "name": "@wrsouza/orion",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Eloquent-inspired Active Record ORM for TypeScript — PostgreSQL, MySQL, MariaDB, SQLite, SQL Server",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

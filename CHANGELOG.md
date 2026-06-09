@@ -93,6 +93,19 @@ orion adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.3.2] — 2026-06-09
+
+### Fixed
+
+- **`BelongsToMany` eager load returns empty array** — `match()` was reading
+  `_attributes['pivot_<fk>']` to group related models back to their parents, but
+  `get()` had already moved all pivot columns out of `_attributes` into a
+  `PivotRecord` stored in `_relations['pivot']`. The FK was therefore `undefined`
+  and no related models were ever assigned. Fixed by reading the FK from
+  `PivotRecord.get(foreignPivotKey)` instead.
+
+---
+
 ## [0.3.0] — 2026-06-08
 
 ### Added
@@ -352,7 +365,8 @@ orion adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `Migration` abstract base, `MigrationRepository`, `Migrator`
 - CLI: `migrate`, `migrate:rollback`, `migrate:reset`, `migrate:status`, `make:migration`
 
-[Unreleased]: https://github.com/wrsouza/orion/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/wrsouza/orion/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/wrsouza/orion/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/wrsouza/orion/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/wrsouza/orion/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/wrsouza/orion/compare/v0.2.0...v0.2.1
