@@ -4,6 +4,7 @@ import { SQLiteSchemaGrammar } from '../../src/schema/grammars/SQLiteSchemaGramm
 import { Model } from '../../src/model/Model';
 import { table } from '../../src/model/decorators/table';
 import { fillable } from '../../src/model/decorators/fillable';
+import { map } from '../../src/model/decorators/map';
 
 // ── Model definition ──────────────────────────────────────────────────────
 
@@ -13,6 +14,14 @@ class Item extends Model {
   declare name: string;
   declare qty: number;
   declare email: string;
+}
+
+@table({ name: 'mapped_items', timestamps: false, connection: 'crud' })
+class MappedItem extends Model {
+  declare name: string;
+
+  @map('some_value')
+  declare someValue: number;
 }
 
 // ── Setup ─────────────────────────────────────────────────────────────────
@@ -29,6 +38,12 @@ beforeAll(async () => {
     t.string('name').unique();
     t.integer('qty').default(0);
     t.string('email').nullable();
+  }, 'crud');
+
+  await Schema.create('mapped_items', (t) => {
+    t.id();
+    t.string('name');
+    t.integer('some_value').default(0);
   }, 'crud');
 });
 
@@ -171,6 +186,17 @@ describe('Model.firstOrCreate', () => {
     const item = await Item.firstOrCreate({ name: 'Created' }, { qty: 42 });
     expect(item.wasRecentlyCreated).toBe(true);
     expect(item._attributes.qty).toBe(42);
+  });
+});
+
+describe('@map decorator with Model.create', () => {
+  it('translates camelCase property names to snake_case column names on insert', async () => {
+    const item = await MappedItem.create({ name: 'Mapped', someValue: 42 });
+    expect(item._attributes['some_value']).toBe(42);
+
+    const found = await MappedItem.find(item._attributes.id);
+    expect(found).not.toBeNull();
+    expect(found!.someValue).toBe(42);
   });
 });
 

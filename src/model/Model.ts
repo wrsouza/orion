@@ -731,7 +731,12 @@ export class Model {
     attributes: Record<string, unknown> = {}
   ): T {
     const instance = new this() as Model;
-    instance._attributes = { ...instance._defaults, ...attributes };
+    const { columnMap } = ModelMetadata.resolve(instance);
+    const mapped: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(attributes)) {
+      mapped[columnMap.get(key) ?? key] = value;
+    }
+    instance._attributes = { ...instance._defaults, ...mapped };
     instance._original = {};
     return makeProxy(instance) as T;
   }
