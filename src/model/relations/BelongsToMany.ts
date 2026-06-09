@@ -44,6 +44,8 @@ export class BelongsToMany<TRelated extends object> extends Relation<TRelated> {
   private _pivotTimestamps = false;
   /** Custom alias for the pivot relation (default: `'pivot'`). */
   private _pivotAlias = 'pivot';
+  /** When `true`, the pivot record is hidden from serialization. */
+  private _hidePivot = false;
   /** Fixed pivot column values automatically merged into every `attach()` call. */
   private _pivotValues: Record<string, unknown> = {};
 
@@ -111,6 +113,27 @@ export class BelongsToMany<TRelated extends object> extends Relation<TRelated> {
    */
   as(alias: string): this {
     this._pivotAlias = alias;
+    return this;
+  }
+
+  /**
+   * Hide the pivot record from serialization (`toArray()` / `toJSON()`).
+   * The `PivotRecord` is still accessible via `model.pivot` at runtime,
+   * but it will not appear in the JSON output.
+   *
+   * @example
+   * ```ts
+   * post.categories().withoutPivot().get()
+   *
+   * // or on the model relation definition:
+   * categories(): BelongsToMany<Category> {
+   *   return this.belongsToMany(Category, 'category_post', 'post_id', 'category_id')
+   *              .withoutPivot();
+   * }
+   * ```
+   */
+  withoutPivot(): this {
+    this._hidePivot = true;
     return this;
   }
 
@@ -443,7 +466,9 @@ export class BelongsToMany<TRelated extends object> extends Relation<TRelated> {
         }
       }
 
-      (model as any)._relations[this._pivotAlias] = new PivotRecord(pivotData);
+      const pivotRecord = new PivotRecord(pivotData);
+      pivotRecord._hidden = this._hidePivot;
+      (model as any)._relations[this._pivotAlias] = pivotRecord;
     }
 
     return results;

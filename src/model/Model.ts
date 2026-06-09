@@ -1968,6 +1968,10 @@ export class Model {
         result[key] = [...value].map((item) => (item instanceof Model ? item.toArray() : item));
       } else if (value instanceof Model) {
         result[key] = value.toArray();
+      } else if (value !== null && typeof (value as any)?.toJSON === 'function') {
+        // PivotRecord and other serialisable objects — honour toJSON(); skip if undefined
+        const serialised = (value as any).toJSON();
+        if (serialised !== undefined) result[key] = serialised;
       } else {
         // Aggregate subquery result (count, sum, …) or null
         result[key] = value;

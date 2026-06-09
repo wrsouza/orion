@@ -13,6 +13,8 @@
  */
 export class PivotRecord {
   private readonly _data: Record<string, unknown>;
+  /** When `true`, `toJSON()` returns `undefined` so the pivot is omitted from serialization. */
+  _hidden = false;
 
   constructor(data: Record<string, unknown>) {
     this._data = data;
@@ -28,7 +30,8 @@ export class PivotRecord {
     return { ...this._data };
   }
 
-  toJSON(): Record<string, unknown> {
+  toJSON(): Record<string, unknown> | undefined {
+    if (this._hidden) return undefined;
     return this.toObject();
   }
 }

@@ -93,6 +93,29 @@ orion adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.3.3] — 2026-06-09
+
+### Added
+
+- **`BelongsToMany.withoutPivot()`** — hides the `pivot` record from `toArray()` / `toJSON()`
+  serialization while keeping it accessible at runtime via `model.pivot`. Use it in the
+  relation definition to suppress the pivot from every response:
+  ```ts
+  categories(): BelongsToMany<Category> {
+    return this.belongsToMany(Category, 'category_post', 'post_id', 'category_id')
+               .withoutPivot();
+  }
+  ```
+
+### Fixed
+
+- **`toArray()` now honours `toJSON()` on non-Model relation values** — objects stored in
+  `_relations` that are not a `Model` or `Collection` (e.g. `PivotRecord`) now have their
+  `toJSON()` called during serialization; if `toJSON()` returns `undefined` the key is
+  omitted from the output entirely.
+
+---
+
 ## [0.3.2] — 2026-06-09
 
 ### Fixed
@@ -365,7 +388,8 @@ orion adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `Migration` abstract base, `MigrationRepository`, `Migrator`
 - CLI: `migrate`, `migrate:rollback`, `migrate:reset`, `migrate:status`, `make:migration`
 
-[Unreleased]: https://github.com/wrsouza/orion/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/wrsouza/orion/compare/v0.3.3...HEAD
+[0.3.3]: https://github.com/wrsouza/orion/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/wrsouza/orion/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/wrsouza/orion/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/wrsouza/orion/compare/v0.2.1...v0.3.0
