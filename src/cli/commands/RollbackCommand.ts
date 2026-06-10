@@ -6,8 +6,8 @@ import { bold, cyan, dim, gray, red, yellow } from '../utils/colors';
 export async function rollbackCommand(config: OrmConfig, steps = 1): Promise<void> {
   const migrationsPath = resolveMigrationsPath(config);
 
-  ConnectionManager.addConnection('default', config.connection);
-  const connection = ConnectionManager.getConnection('default');
+  ConnectionManager.addConnection(config.name, config.connection);
+  const connection = ConnectionManager.getConnection(config.name);
 
   const migrator = new Migrator({
     migrationsPath,

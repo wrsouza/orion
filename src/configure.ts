@@ -8,6 +8,12 @@ import { Model } from './model/Model';
 
 export interface OrionConfig {
   /**
+   * Connection name. The first connection defaults to `'default'` when omitted.
+   * Required for every subsequent connection in a multi-connection array.
+   */
+  name?: string;
+
+  /**
    * Database connection — either a URL string or a full config object.
    *
    * @example
@@ -53,50 +59,55 @@ export interface OrionConfig {
 }
 
 /**
- * Configure the Orion ORM in one call — connection, migrations path, morph map
- * and lazy-loading guard are all set up here.
+ * Configure the Orion ORM — accepts a single connection config or an array
+ * for multiple connections. The first entry (or the object itself) is always
+ * the `default` connection used by all models unless overridden with `@table`.
  *
  * Place this in a single `src/database.ts` file and import it at your
  * application entry point. The CLI reads the same file automatically.
  *
- * @example
+ * @example — single connection
  * ```ts
- * // src/database.ts
- * import { createConnection } from '@wrsouza/orion';
- * import { Post } from './models/Post';
- *
  * export default createConnection({
  *   connection: process.env.DATABASE_URL,
  *   migrations: { path: './src/database/migrations' },
- *   morphs: { post: Post },
- *   preventLazyLoading: process.env.NODE_ENV !== 'production',
  * });
  * ```
  *
- * In your app entry point (Express, NestJS, Next.js, etc.):
+ * @example — multiple connections
  * ```ts
- * import './database'; // one import — everything is configured
- * ```
- *
- * CLI (add to package.json scripts):
- * ```
- * "migrate": "node -r ts-node/register node_modules/@wrsouza/orion/dist/cli/index.js migrate"
+ * export default createConnection([
+ *   {
+ *     connection: process.env.DATABASE_URL,
+ *     migrations: { path: './src/database/migrations' },
+ *   },
+ *   {
+ *     name: 'analytics',
+ *     connection: process.env.ANALYTICS_DATABASE_URL,
+ *     migrations: { path: './src/database/analytics-migrations' },
+ *   },
+ * ]);
  * ```
  */
-export function createConnection(config: OrionConfig): OrionConfig {
-  const resolved: ConnectionConfig =
-    typeof config.connection === 'string'
-      ? parseConnectionUrl(config.connection)
-      : config.connection;
+export function createConnection(config: OrionConfig | OrionConfig[]): OrionConfig | OrionConfig[] {
+  const configs = Array.isArray(config) ? config : [config];
 
-  ConnectionManager.addConnection('default', resolved);
+  for (let i = 0; i < configs.length; i++) {
+    const cfg = configs[i];
+    const name = cfg.name ?? (i === 0 ? 'default' : `connection_${i}`);
 
-  if (config.morphs) {
-    MorphMap.enforce(config.morphs);
-  }
+    const resolved: ConnectionConfig =
+      typeof cfg.connection === 'string' ? parseConnectionUrl(cfg.connection) : cfg.connection;
 
-  if (config.preventLazyLoading) {
-    Model.preventLazyLoading();
+    ConnectionManager.addConnection(name, resolved);
+
+    if (cfg.morphs) {
+      MorphMap.enforce(cfg.morphs);
+    }
+
+    if (cfg.preventLazyLoading) {
+      Model.preventLazyLoading();
+    }
   }
 
   return config;

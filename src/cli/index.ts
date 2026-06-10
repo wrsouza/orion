@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import './bootstrap'; // must be first — auto-registers ts-node before any require()
-import { loadConfig } from './utils/config';
-import { bold, cyan, red } from './utils/colors';
+import { loadConfig, OrmConfig } from './utils/config';
+import { bold, cyan, red, dim } from './utils/colors';
 
 const COMMANDS = [
   'migrate',
@@ -36,8 +36,25 @@ ${bold('Commands:')}
   ${cyan('make:factory')} <name>            Create a new factory file
 
 ${bold('Options:')}
-  ${cyan('--config')} <path>           Path to config file (optional)
+  ${cyan('--config')} <path>               Path to config file (optional)
+  ${cyan('--connection')} <name>           Target a specific connection (default: 'default')
+  ${cyan('--all')}                         Run on all configured connections
 `);
+}
+
+function selectConfigs(
+  configs: OrmConfig[],
+  connectionName: string | undefined,
+  all: boolean
+): OrmConfig[] {
+  if (all) return configs;
+  const name = connectionName ?? 'default';
+  const found = configs.find((c) => c.name === name);
+  if (!found) {
+    const available = configs.map((c) => `'${c.name}'`).join(', ');
+    throw new Error(`[orion] Connection '${name}' not found. Available: ${available}`);
+  }
+  return [found];
 }
 
 async function main(): Promise<void> {
@@ -58,6 +75,31 @@ async function main(): Promise<void> {
     }
   }
 
+  // --connection <name> or --connection=<name>
+  const connFlagIndex = args.findIndex(
+    (a) => a === '--connection' || a.startsWith('--connection=')
+  );
+  let connectionName: string | undefined;
+  if (connFlagIndex !== -1) {
+    if (args[connFlagIndex].includes('=')) {
+      connectionName = args[connFlagIndex].split('=')[1];
+      args.splice(connFlagIndex, 1);
+    } else {
+      connectionName = args[connFlagIndex + 1];
+      args.splice(connFlagIndex, 2);
+    }
+  }
+
+  // --all
+  const allFlagIndex = args.indexOf('--all');
+  const runAll = allFlagIndex !== -1;
+  if (runAll) args.splice(allFlagIndex, 1);
+
+  if (connectionName && runAll) {
+    console.error(red('\n  Cannot use --connection and --all together.\n'));
+    process.exit(1);
+  }
+
   const command = args[0];
 
   if (!command || command === '--help' || command === '-h') {
@@ -71,9 +113,9 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  let config;
+  let allConfigs: OrmConfig[];
   try {
-    config = loadConfig(process.cwd(), configPath);
+    allConfigs = loadConfig(process.cwd(), configPath);
   } catch (err) {
     console.error(red(`\n  ${(err as Error).message}\n`));
     process.exit(1);
@@ -83,34 +125,69 @@ async function main(): Promise<void> {
   const stepFlag = args.find((a) => a.startsWith('--step='));
   const steps = stepFlag ? parseInt(stepFlag.split('=')[1], 10) : 1;
 
+  // Commands that are connection-aware (migrations)
+  const connectionAwareCommands = [
+    'migrate',
+    'migrate:rollback',
+    'migrate:reset',
+    'migrate:status',
+    'make:migration',
+  ];
+
+  // For connection-aware commands, resolve which configs to target
+  let targetConfigs: OrmConfig[];
+  if (connectionAwareCommands.includes(command)) {
+    try {
+      targetConfigs = selectConfigs(allConfigs, connectionName, runAll);
+    } catch (err) {
+      console.error(red(`\n  ${(err as Error).message}\n`));
+      process.exit(1);
+    }
+  } else {
+    // Seed / factory / prune commands always use the default connection
+    targetConfigs = [allConfigs.find((c) => c.name === 'default') ?? allConfigs[0]];
+  }
+
   switch (command) {
     case 'migrate': {
       const { migrateCommand } = await import('./commands/MigrateCommand');
-      await migrateCommand(config);
+      for (const cfg of targetConfigs) {
+        if (targetConfigs.length > 1) console.log(dim(`\n  ── ${cfg.name} ──`));
+        await migrateCommand(cfg);
+      }
       break;
     }
 
     case 'migrate:rollback': {
       const { rollbackCommand } = await import('./commands/RollbackCommand');
-      await rollbackCommand(config, steps);
+      for (const cfg of targetConfigs) {
+        if (targetConfigs.length > 1) console.log(dim(`\n  ── ${cfg.name} ──`));
+        await rollbackCommand(cfg, steps);
+      }
       break;
     }
 
     case 'migrate:reset': {
       const { rollbackCommand } = await import('./commands/RollbackCommand');
-      // Reset = rollback all; we pass a large number
-      await rollbackCommand(config, 9999);
+      for (const cfg of targetConfigs) {
+        if (targetConfigs.length > 1) console.log(dim(`\n  ── ${cfg.name} ──`));
+        await rollbackCommand(cfg, 9999);
+      }
       break;
     }
 
     case 'migrate:status': {
       const { statusCommand } = await import('./commands/StatusCommand');
-      await statusCommand(config);
+      for (const cfg of targetConfigs) {
+        if (targetConfigs.length > 1) console.log(dim(`\n  ── ${cfg.name} ──`));
+        await statusCommand(cfg);
+      }
       break;
     }
 
     case 'make:migration': {
       const migrationName = args.slice(1).join(' ');
+      const config = targetConfigs[0];
       const { makeMigrationCommand } = await import('./commands/MakeMigrationCommand');
       await makeMigrationCommand(config, migrationName);
       break;
@@ -120,7 +197,7 @@ async function main(): Promise<void> {
       const modelFlag = args.find((a) => a.startsWith('--model='));
       const chunkFlag = args.find((a) => a.startsWith('--chunk='));
       const { pruneCommand } = await import('./commands/PruneCommand');
-      await pruneCommand(config, {
+      await pruneCommand(targetConfigs[0], {
         model: modelFlag ? modelFlag.split('=')[1] : undefined,
         chunk: chunkFlag ? parseInt(chunkFlag.split('=')[1], 10) : undefined,
       });
@@ -131,21 +208,21 @@ async function main(): Promise<void> {
       const classFlag = args.find((a) => a.startsWith('--class='));
       const seederClass = classFlag ? classFlag.split('=')[1] : undefined;
       const { seedCommand } = await import('./commands/SeedCommand');
-      await seedCommand(config, seederClass);
+      await seedCommand(targetConfigs[0], seederClass);
       break;
     }
 
     case 'make:seed': {
       const seederName = args.slice(1).join(' ');
       const { makeSeederCommand } = await import('./commands/MakeSeederCommand');
-      await makeSeederCommand(config, seederName);
+      await makeSeederCommand(targetConfigs[0], seederName);
       break;
     }
 
     case 'make:factory': {
       const factoryName = args.slice(1).join(' ');
       const { makeFactoryCommand } = await import('./commands/MakeFactoryCommand');
-      await makeFactoryCommand(config, factoryName);
+      await makeFactoryCommand(targetConfigs[0], factoryName);
       break;
     }
   }

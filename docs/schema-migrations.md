@@ -43,6 +43,9 @@ The name drives the template generated:
 npx orion make:migration create_users_table
 npx orion make:migration add_avatar_to_users
 npx orion make:migration create_role_user_table
+
+# Create in a specific connection's migrations directory
+npx orion make:migration create_events_table --connection analytics
 ```
 
 Generated file (`20240601120000_create_users_table.ts`):
@@ -123,7 +126,14 @@ async up(): Promise<void> {
 ## Running Migrations
 
 ```bash
+# Default connection
 npx orion migrate
+
+# A specific named connection
+npx orion migrate --connection analytics
+
+# All configured connections
+npx orion migrate --all
 ```
 
 All pending migrations run in a single batch. The batch number is saved for grouped rollback.
@@ -145,7 +155,7 @@ Output:
 ## Rolling Back
 
 ```bash
-# Roll back the last batch
+# Roll back the last batch (default connection)
 npx orion migrate:rollback
 
 # Roll back the last N batches
@@ -153,6 +163,14 @@ npx orion migrate:rollback --step=3
 
 # Roll back ALL migrations
 npx orion migrate:reset
+
+# Target a specific connection
+npx orion migrate:rollback --connection analytics
+npx orion migrate:reset --connection analytics
+
+# All configured connections
+npx orion migrate:rollback --all
+npx orion migrate:reset --all
 ```
 
 ---
@@ -160,7 +178,14 @@ npx orion migrate:reset
 ## Migration Status
 
 ```bash
+# Default connection
 npx orion migrate:status
+
+# A specific named connection
+npx orion migrate:status --connection analytics
+
+# All configured connections
+npx orion migrate:status --all
 ```
 
 ```

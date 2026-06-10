@@ -6,6 +6,10 @@
   - [Connection via Config Object](#connection-via-config-object)
   - [Morph Map](#morph-map)
   - [Lazy Loading Guard](#lazy-loading-guard)
+- [Multiple Connections](#multiple-connections)
+  - [Per-connection fields](#orionconfig--per-connection-fields)
+  - [Pointing a model at a specific connection](#pointing-a-model-at-a-specific-connection)
+  - [Running migrations on multiple connections](#running-migrations-on-multiple-connections)
 - [Config File Auto-detection](#config-file-auto-detection)
   - [Custom Config Path](#custom-config-path)
 - [Framework Integration](#framework-integration)
@@ -14,7 +18,6 @@
   - [NestJS](#nestjs)
   - [Next.js](#nextjs)
   - [React Router v7 (Framework Mode)](#react-router-v7-framework-mode)
-- [Multiple Connections](#multiple-connections)
 - [URL Reference](#url-reference)
 
 ---
@@ -48,13 +51,18 @@ The same file is auto-detected by the Orion CLI for running migrations, so you n
 ```ts
 import { createConnection } from '@wrsouza/orion';
 
+// Single connection
 createConnection(config: OrionConfig): OrionConfig
+
+// Multiple connections
+createConnection(config: OrionConfig[]): OrionConfig[]
 ```
 
 ### OrionConfig
 
 | Field | Type | Required | Description |
 |---|---|---|---|
+| `name` | `string` | — | Connection name. Defaults to `'default'` for the first entry |
 | `connection` | `string \| ConnectionConfig` | ✅ | Database URL or config object |
 | `migrations.path` | `string` | — | Path to migrations directory. Default: `./database/migrations` |
 | `migrations.table` | `string` | — | Control table name. Default: `orion_migrations` |
@@ -461,13 +469,29 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get()    findAll()                       { return this.usersService.findAll(); }
-  @Get(':id') findOne(@Param('id') id: string) { return this.usersService.findOne(id); }
-  @Post()   create(@Body() body: any)       { return this.usersService.create(body); }
-  @Put(':id') update(@Param('id') id: string, @Body() body: any) {
+  @Get()    
+  findAll() { 
+    return this.usersService.findAll(); 
+  }
+  
+  @Get(':id') 
+  findOne(@Param('id') id: string) { 
+    return this.usersService.findOne(id); 
+  }
+
+  @Post()   
+  create(@Body() body: any) { 
+    return this.usersService.create(body); 
+  }
+
+  @Put(':id') 
+  update(@Param('id') id: string, @Body() body: any) {
     return this.usersService.update(id, body);
   }
-  @Delete(':id') remove(@Param('id') id: string) { return this.usersService.remove(id); }
+  @Delete(':id') 
+  remove(@Param('id') id: string) { 
+    return this.usersService.remove(id); 
+  }
 }
 ```
 
@@ -617,37 +641,43 @@ export default function UsersPage() {
 
 ## Multiple Connections
 
-When your application talks to more than one database, use `ConnectionManager` directly alongside `createConnection()`:
+When your application talks to more than one database, pass an array to `createConnection()`. The first entry is always the `default` connection used by all models unless overridden.
 
 ```ts
 // src/database.ts
-import { createConnection, ConnectionManager } from '@wrsouza/orion';
+import { createConnection } from '@wrsouza/orion';
 
-// Primary connection — used by all models by default
-export default createConnection({
-  connection: process.env.DATABASE_URL,
-  migrations: { path: './src/database/migrations' },
-});
-
-// Secondary connections
-ConnectionManager.addConnection('analytics', {
-  driver:   'postgres',
-  host:     process.env.ANALYTICS_DB_HOST ?? 'analytics-db',
-  database: 'analytics',
-  user:     process.env.ANALYTICS_DB_USER ?? 'analytics',
-  password: process.env.ANALYTICS_DB_PASS ?? '',
-});
-
-ConnectionManager.addConnection('cache', {
-  driver:   'mysql',
-  host:     process.env.CACHE_DB_HOST ?? 'cache-db',
-  database: 'cache',
-  user:     process.env.CACHE_DB_USER ?? 'cache',
-  password: process.env.CACHE_DB_PASS ?? '',
-});
+export default createConnection([
+  {
+    connection: process.env.DATABASE_URL,
+    migrations: { path: './src/database/migrations' },
+    preventLazyLoading: process.env.NODE_ENV !== 'production',
+  },
+  {
+    name: 'analytics',
+    connection: process.env.ANALYTICS_DATABASE_URL,
+    migrations: { path: './src/database/analytics-migrations' },
+  },
+  {
+    name: 'cache',
+    connection: process.env.CACHE_DATABASE_URL,
+    migrations: { path: './src/database/cache-migrations' },
+  },
+]);
 ```
 
-Point a model at a specific connection:
+### OrionConfig — per-connection fields
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `name` | `string` | — | Connection name. First entry defaults to `'default'` when omitted |
+| `connection` | `string \| ConnectionConfig` | ✅ | Database URL or config object |
+| `migrations.path` | `string` | — | Path to migrations directory. Default: `./database/migrations` |
+| `migrations.table` | `string` | — | Control table name. Default: `orion_migrations` |
+| `morphs` | `Record<string, Function>` | — | Polymorphic type alias map (global — typically set on the first entry only) |
+| `preventLazyLoading` | `boolean` | — | Throw on un-eager-loaded relation access (global) |
+
+### Pointing a model at a specific connection
 
 ```ts
 @table({ name: 'page_views', connection: 'analytics' })
@@ -655,6 +685,29 @@ class PageView extends Model {}
 
 @table({ name: 'sessions', connection: 'cache' })
 class Session extends Model {}
+```
+
+### Running migrations on multiple connections
+
+By default the CLI targets the `default` connection. Use `--connection` or `--all` to target others:
+
+```bash
+# Default connection only (same behaviour as before)
+npx orion migrate
+
+# A specific named connection
+npx orion migrate --connection analytics
+
+# All configured connections
+npx orion migrate --all
+```
+
+The same flags work for `migrate:rollback`, `migrate:reset`, and `migrate:status`.
+
+To generate a migration file in a specific connection's directory:
+
+```bash
+npx orion make:migration create_events_table --connection analytics
 ```
 
 ---
