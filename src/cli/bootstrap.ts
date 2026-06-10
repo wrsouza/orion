@@ -17,6 +17,8 @@ try {
     transpileOnly: true, // skip type-checking for speed
     compilerOptions: {
       module: 'commonjs', // force CJS regardless of project tsconfig
+      moduleResolution: 'node', // must match module: commonjs
+      resolvePackageJsonExports: false, // not valid with moduleResolution: node
       experimentalDecorators: true,
       emitDecoratorMetadata: true,
     },
