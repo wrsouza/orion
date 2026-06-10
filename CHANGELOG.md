@@ -7,6 +7,22 @@ orion adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.4.2] — 2026-06-10
+
+### Fixed
+
+#### Static pagination and iteration methods on `Model`
+
+- `Model.paginate(page, perPage)` — full paginate with total count; was only accessible via the query builder (`Model.where(...).paginate()`)
+- `Model.simplePaginate(page, perPage)` — lightweight paginate without total count
+- `Model.chunk(size, callback)` — iterate rows in batches via callback
+- `Model.cursor()` — async generator yielding one row at a time (memory-efficient)
+- `Model.lazy(size)` — async generator yielding rows in batches
+
+All five methods now delegate to their `ModelBuilder` equivalents and are callable directly on any model subclass (e.g. `User.paginate(1, 15)`), matching the documented API.
+
+---
+
 ## [0.4.0] — 2026-06-09
 
 ### Added
