@@ -49,21 +49,41 @@ npm install @wrsouza/orion pg
 ```
 
 ```ts
-import { createConnection, Model, table, casts } from '@wrsouza/orion';
+// src/database.ts
+import { createConnection } from '@wrsouza/orion';
 
-// Connect (src/database.ts)
-createConnection({ connection: process.env.DATABASE_URL });
+export default createConnection({
+  connection: process.env.DATABASE_URL ?? {
+    driver:   'postgres',
+    host:     process.env.DB_HOST ?? 'localhost',
+    database: process.env.DB_NAME ?? 'myapp',
+    user:     process.env.DB_USER ?? 'postgres',
+    password: process.env.DB_PASS ?? '',
+  },
+  migrations: { path: './src/database/migrations' },
+  preventLazyLoading: process.env.NODE_ENV !== 'production',
+});
+```
 
-// Define a model
+```ts
+// src/database/models/User.ts
+import { Model, table, map } from '@wrsouza/orion';
+
 @table('users')
-@casts({ is_active: 'boolean', born_at: 'date' })
-class User extends Model {
+export class User extends Model {
   declare id: number;
   declare name: string;
   declare email: string;
-  declare is_active: boolean;
-}
 
+  @map('is_active')
+  declare isActive: boolean;
+
+  @map('born_at')
+  declare bornAt: Date;
+}
+```
+
+```ts
 // Query
 const users = await User.where('is_active', true).orderBy('name').paginate(15);
 const alice = await User.create({ name: 'Alice', email: 'alice@example.com' });

@@ -115,19 +115,28 @@ class AnalyticsEvent extends Model {}
 ## Defining Models
 
 ```ts
-import { Model, table, casts, hidden, visible, appends } from '@wrsouza/orion';
+import { Model, table, map, cast, Cast, hidden } from '@wrsouza/orion';
 
 @table('users')
-@hidden(['password', 'remember_token'])
-@casts({ is_active: 'boolean', settings: 'json', born_at: 'date' })
-class User extends Model {
+export class User extends Model {
   declare id: number;
   declare name: string;
   declare email: string;
+
+  @hidden()
   declare password: string;
-  declare is_active: boolean;
+
+  @map('is_active')
+  @cast(Cast.Boolean)
+  declare isActive: boolean;
+
+  @map('settings')
+  @cast(Cast.Json)
   declare settings: Record<string, unknown>;
-  declare born_at: Date;
+
+  @map('born_at')
+  @cast(Cast.Date)
+  declare bornAt: Date;
 }
 ```
 

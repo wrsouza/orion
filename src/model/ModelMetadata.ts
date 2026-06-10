@@ -193,6 +193,42 @@ export interface ComparesCastableAttributes {
 /** All supported cast types: primitive keywords, parameterised strings, or a class constructor. */
 export type CastType = PrimitiveCastType | string | CastClassConstructor | CastableConstructor;
 
+/**
+ * Enum of built-in cast types for use with the `@cast()` property decorator.
+ *
+ * @example
+ * ```ts
+ * class User extends Model {
+ *   \@cast(Cast.Boolean)
+ *   declare isActive: boolean;
+ *
+ *   \@cast(Cast.Date)
+ *   declare bornAt: Date;
+ *
+ *   \@cast(Cast.Decimal(2))
+ *   declare price: number;
+ * }
+ * ```
+ */
+export const Cast = {
+  Number: 'number' as const,
+  String: 'string' as const,
+  Boolean: 'boolean' as const,
+  Json: 'json' as const,
+  Date: 'date' as const,
+  Array: 'array' as const,
+  Hashed: 'hashed' as const,
+  Encrypted: 'encrypted' as const,
+  EncryptedArray: 'encrypted:array' as const,
+  EncryptedJson: 'encrypted:json' as const,
+  ImmutableDate: 'immutable_date' as const,
+  ImmutableDatetime: 'immutable_datetime' as const,
+  JsonUnicode: 'json:unicode' as const,
+  AsStringable: 'AsStringable' as const,
+  /** Decimal cast with a fixed number of decimal places: `Cast.Decimal(2)` → `'decimal:2'`. */
+  Decimal: (places: number): `decimal:${number}` => `decimal:${places}`,
+} as const;
+
 /** A class-based global scope implementing `apply()`. */
 export interface GlobalScope {
   apply(builder: import('./ModelBuilder').ModelBuilder<any>, model: Function): void;

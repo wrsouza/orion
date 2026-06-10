@@ -6,6 +6,8 @@
   - [Appending to Serialization](#appending-to-serialization)
 - [Mutators](#mutators)
 - [Attribute Casting](#attribute-casting)
+  - [Cast Enum](#cast-enum)
+  - [Property-Level Casting](#property-level-casting)
   - [Built-in Cast Types](#built-in-cast-types)
   - [Array and JSON Casting](#array-and-json-casting)
   - [Date Casting](#date-casting)
@@ -170,24 +172,95 @@ class Product extends Model {
 
 ## Attribute Casting
 
-Use `@casts` to automatically transform attributes when reading from or writing to the model. No code needed in the class body.
+Orion provides two ways to declare casts: class-level with `@casts`, or per-property with `@cast`.
+
+### Cast Enum
+
+Import `Cast` to avoid raw strings and get autocomplete on all built-in cast types:
 
 ```ts
-import { Model, table, casts } from '@wrsouza/orion';
+import { Cast } from '@wrsouza/orion';
+```
+
+| Value | String equivalent |
+|-------|------------------|
+| `Cast.Number` | `'number'` |
+| `Cast.String` | `'string'` |
+| `Cast.Boolean` | `'boolean'` |
+| `Cast.Json` | `'json'` |
+| `Cast.Date` | `'date'` |
+| `Cast.Array` | `'array'` |
+| `Cast.Hashed` | `'hashed'` |
+| `Cast.Encrypted` | `'encrypted'` |
+| `Cast.EncryptedArray` | `'encrypted:array'` |
+| `Cast.EncryptedJson` | `'encrypted:json'` |
+| `Cast.ImmutableDate` | `'immutable_date'` |
+| `Cast.ImmutableDatetime` | `'immutable_datetime'` |
+| `Cast.JsonUnicode` | `'json:unicode'` |
+| `Cast.AsStringable` | `'AsStringable'` |
+| `Cast.Decimal(n)` | `'decimal:2'` (parameterized) |
+
+Both `@casts` and `@cast` accept `Cast.*` values or raw strings interchangeably.
+
+---
+
+### Property-Level Casting
+
+Use `@cast()` directly on a property for co-located, per-field declarations. Works alongside `@map()`:
+
+```ts
+import { Model, table, map, cast, Cast } from '@wrsouza/orion';
+
+@table('products')
+export class Product extends Model {
+  declare id: number;
+  declare name: string;
+
+  @map('is_active')
+  @cast(Cast.Boolean)
+  declare isActive: boolean;
+
+  @map('published_at')
+  @cast(Cast.Date)
+  declare publishedAt: Date;
+
+  @cast(Cast.Json)
+  declare settings: Record<string, unknown>;
+
+  @cast(Cast.Decimal(2))
+  declare price: number;
+
+  @cast(MoneyCast)           // custom cast class also accepted
+  declare balance: Money;
+}
+```
+
+---
+
+### Class-Level Casting
+
+Use `@casts` when you prefer to declare all casts in one place at the top of the class:
+
+```ts
+import { Model, table, casts, Cast } from '@wrsouza/orion';
 
 @table('products')
 @casts({
-  price:          'number',
-  is_active:      'boolean',
-  settings:       'json',
-  tags:           'array',
-  published_at:   'date',
-  score:          'decimal:2',
-  description:    'AsStringable',
-  secret_key:     'encrypted',
+  price:        Cast.Number,
+  isActive:     Cast.Boolean,
+  settings:     Cast.Json,
+  tags:         Cast.Array,
+  publishedAt:  Cast.Date,
+  score:        Cast.Decimal(2),
+  description:  Cast.AsStringable,
+  secretKey:    Cast.Encrypted,
 })
 class Product extends Model {}
 ```
+
+> `@casts` and `@cast` can be used together — property-level declarations are merged on top of class-level ones. If the same property is declared in both, the property-level `@cast` takes precedence.
+
+---
 
 ### Built-in Cast Types
 

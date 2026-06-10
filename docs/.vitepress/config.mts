@@ -68,6 +68,16 @@ export default defineConfig({
         ],
       },
       {
+        text: 'Integrations',
+        items: [
+          { text: 'Express',           link: '/integrations/express' },
+          { text: 'Fastify',           link: '/integrations/fastify' },
+          { text: 'NestJS',            link: '/integrations/nestjs' },
+          { text: 'Next.js',           link: '/integrations/nextjs' },
+          { text: 'React Router v7',   link: '/integrations/react-router' },
+        ],
+      },
+      {
         text: 'Advanced',
         items: [
           { text: 'API Resources', link: '/api-resources' },

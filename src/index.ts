@@ -56,10 +56,10 @@ export { ModelBuilder, ModelConstructor } from './model/ModelBuilder';
 export { Collection } from './model/Collection';
 export { ModelCollection } from './model/ModelCollection';
 export { Paginator, SimplePaginator } from './model/Paginator';
-export { ModelMetadata, ModelConfig, CastType } from './model/ModelMetadata';
+export { ModelMetadata, ModelConfig, CastType, Cast } from './model/ModelMetadata';
 export { table, withoutTimestamps } from './model/decorators/table';
 export { fillable, guarded } from './model/decorators/fillable';
-export { casts, hidden, visible, appends, accessor, mutator } from './model/decorators/cast';
+export { casts, cast, hidden, visible, appends, accessor, mutator } from './model/decorators/cast';
 export type {
   CastClass,
   CastClassConstructor,

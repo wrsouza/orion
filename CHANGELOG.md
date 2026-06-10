@@ -7,6 +7,26 @@ orion adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [Unreleased]
+
+### Added
+
+#### `Cast` enum
+- New `Cast` object exported from `@wrsouza/orion` with named constants for all built-in cast types: `Cast.Number`, `Cast.String`, `Cast.Boolean`, `Cast.Json`, `Cast.Date`, `Cast.Array`, `Cast.Hashed`, `Cast.Encrypted`, `Cast.EncryptedArray`, `Cast.EncryptedJson`, `Cast.ImmutableDate`, `Cast.ImmutableDatetime`, `Cast.JsonUnicode`, `Cast.AsStringable`, `Cast.Decimal(n)`
+- Eliminates raw string literals in cast declarations — IDE autocomplete and typo safety
+- Accepted by both `@casts({})` and the new `@cast()` property decorator
+
+#### `@cast()` property decorator
+- New property-level decorator for per-field cast declarations alongside `@map()`
+- Accepts `Cast.*` values, `Cast.Decimal(n)`, or any custom `CastClass` / `Castable` constructor
+- Property-level declarations are merged on top of class-level `@casts` — property wins on conflict
+
+#### `@hidden()` property decorator
+- `@hidden` now works as both a class decorator (`@hidden(['password'])`) and a property decorator (`@hidden()`)
+- The property form hides individual fields without listing them all at the class level
+
+---
+
 ## [0.2.0] — 2026-06-08
 
 ### Added

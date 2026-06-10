@@ -2,7 +2,6 @@
 
 - [Introduction](#introduction)
 - [Serializing to Arrays](#serializing-to-arrays)
-- [Serializing to JSON](#serializing-to-json)
 - [Hiding Attributes](#hiding-attributes)
 - [Exposing Attributes (visible)](#exposing-attributes-visible)
 - [Temporarily Modifying Visibility](#temporarily-modifying-visibility)
@@ -41,25 +40,7 @@ const users = await User.with('roles').get();
 users.toArray(); // array of plain objects, relations included
 ```
 
----
-
-## Serializing to JSON
-
-```ts
-const user = await User.findOrFail(1);
-
-const json = JSON.stringify(user);          // calls toArray() internally
-const json = JSON.stringify(await User.all()); // works on collections too
-```
-
-Because Orion implements `toJSON()`, models and collections can be returned directly from any framework that calls `JSON.stringify` (Express, Fastify, etc.):
-
-```ts
-// Express
-app.get('/users', async (req, res) => {
-  res.json(await User.all()); // automatically serialized
-});
-```
+> Orion implements `toJSON()` on both models and collections, so you can pass them directly to `res.json()`, `JSON.stringify()`, or any HTTP framework — serialization happens automatically, no explicit `.toArray()` call needed.
 
 ---
 
@@ -138,27 +119,37 @@ users.mergeHidden(['secret']).toArray();
 Computed accessors are excluded from serialization by default. Use `@appends` to include them permanently:
 
 ```ts
-import { Model, table, appends, accessor } from '@wrsouza/orion';
+import { Model, table, appends, accessor, map, cast, Cast } from '@wrsouza/orion';
 
 @table('users')
 @appends(['full_name', 'is_veteran'])
 class User extends Model {
-  declare created_at: Date;
+  declare id: number;
+
+  @map('first_name')
+  declare firstName: string;
+
+  @map('last_name')
+  declare lastName: string;
+
+  @map('created_at')
+  @cast(Cast.Date)
+  declare createdAt: Date;
 
   @accessor
   get fullName(): string {
-    return `${this._attributes.first_name} ${this._attributes.last_name}`;
+    return `${this.firstName} ${this.lastName}`;
   }
 
   @accessor
   get isVeteran(): boolean {
-    const years = (Date.now() - this.created_at.getTime()) / (365.25 * 86400e3);
+    const years = (Date.now() - this.createdAt.getTime()) / (365.25 * 86400e3);
     return years >= 5;
   }
 }
 
 user.toArray();
-// { id: 1, first_name: 'Alice', ..., full_name: 'Alice Smith', is_veteran: false }
+// { id: 1, firstName: 'Alice', lastName: 'Smith', ..., full_name: 'Alice Smith', is_veteran: false }
 ```
 
 > Accessor methods use camelCase (`fullName`) but the appended key uses snake_case (`full_name`). Orion converts automatically.

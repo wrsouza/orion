@@ -1,4 +1,17 @@
-import { CastType, ModelMetadata } from '../ModelMetadata';
+import {
+  Cast,
+  CastClassConstructor,
+  CastableConstructor,
+  CastType,
+  ModelMetadata,
+} from '../ModelMetadata';
+
+/** Accepted types for the `@cast()` property decorator. */
+type PropertyCastType =
+  | (typeof Cast)[keyof Omit<typeof Cast, 'Decimal'>]
+  | ReturnType<typeof Cast.Decimal>
+  | CastClassConstructor
+  | CastableConstructor;
 export type {
   CastClass,
   CastClassConstructor,
@@ -30,15 +43,35 @@ export function casts(map: Record<string, CastType>): ClassDecorator {
 /**
  * Hide columns from serialization.
  *
- * @example
+ * **Class decorator** — hides a list of properties at once:
  * ```ts
  * \@hidden(['password', 'remember_token'])
  * class User extends Model { ... }
  * ```
+ *
+ * **Property decorator** — hides a single property:
+ * ```ts
+ * class User extends Model {
+ *   \@hidden()
+ *   declare password: string;
+ * }
+ * ```
  */
-export function hidden(columns: string[]): ClassDecorator {
-  return (target) => {
-    ModelMetadata.get(target).hidden = columns;
+export function hidden(columns: string[]): ClassDecorator;
+export function hidden(): PropertyDecorator;
+export function hidden(columns?: string[]): ClassDecorator | PropertyDecorator {
+  if (columns !== undefined) {
+    return (target: Function) => {
+      ModelMetadata.get(target).hidden = columns;
+    };
+  }
+  return (target: object, propertyKey: string | symbol) => {
+    const propName = String(propertyKey);
+    const ctor = target.constructor as Function;
+    const config = ModelMetadata.get(ctor);
+    if (!config.hidden.includes(propName)) {
+      config.hidden = [...config.hidden, propName];
+    }
   };
 }
 
@@ -99,6 +132,37 @@ export function appends(attrs: string[]): ClassDecorator {
  * }
  * ```
  */
+/**
+ * Declare a cast for a single model property.
+ * Prefer `Cast.*` enum values over raw strings to avoid typos.
+ * For custom cast classes, pass the constructor directly.
+ *
+ * @example
+ * ```ts
+ * class User extends Model {
+ *   \@cast(Cast.Boolean)
+ *   declare isActive: boolean;
+ *
+ *   \@cast(Cast.Date)
+ *   declare bornAt: Date;
+ *
+ *   \@cast(Cast.Decimal(2))
+ *   declare price: number;
+ *
+ *   \@cast(MoneyCast)
+ *   declare balance: Money;
+ * }
+ * ```
+ */
+export function cast(type: PropertyCastType): PropertyDecorator {
+  return (target, propertyKey) => {
+    const propName = String(propertyKey);
+    const ctor = target.constructor as Function;
+    const config = ModelMetadata.get(ctor);
+    config.casts = { ...config.casts, [propName]: type };
+  };
+}
+
 export function accessor(
   target: any,
   propertyKey: string,

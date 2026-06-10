@@ -111,16 +111,16 @@ import './database';
 **3. Define models and query:**
 
 ```ts
-import { Model, table, casts, map, uuid } from '@wrsouza/orion';
+import { Model, table, map, uuid } from '@wrsouza/orion';
 
 @table('users')
-@casts({ createdAt: 'date', updatedAt: 'date' })
-class User extends Model {
+export class User extends Model {
   @uuid()
   declare id: string;
 
   declare name: string;
   declare email: string;
+  declare active: boolean;
 
   @map('created_at')
   declare createdAt: Date;
