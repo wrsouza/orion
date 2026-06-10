@@ -21,6 +21,13 @@ orion adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 All five methods now delegate to their `ModelBuilder` equivalents and are callable directly on any model subclass (e.g. `User.paginate(1, 15)`), matching the documented API.
 
+#### `ModelNotFoundException`
+
+- New `ModelNotFoundException` class exported from `@wrsouza/orion`
+- Thrown by `firstOrFail()` and `findOrFail()` instead of the generic `Error`
+- Extends `Error` with `name = 'ModelNotFoundException'` for precise `catch` handling
+- Message includes the model name and, for `findOrFail`, the key that was not found
+
 ---
 
 ## [0.4.0] — 2026-06-09

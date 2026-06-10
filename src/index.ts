@@ -56,6 +56,7 @@ export { ModelBuilder, ModelConstructor } from './model/ModelBuilder';
 export { Collection } from './model/Collection';
 export { ModelCollection } from './model/ModelCollection';
 export { Paginator, SimplePaginator } from './model/Paginator';
+export { ModelNotFoundException } from './model/ModelNotFoundException';
 export { ModelMetadata, ModelConfig, CastType, Cast } from './model/ModelMetadata';
 export { table, withoutTimestamps } from './model/decorators/table';
 export { fillable, guarded } from './model/decorators/fillable';

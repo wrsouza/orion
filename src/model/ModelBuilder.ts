@@ -6,6 +6,7 @@ import { QueryBuilder } from '../query/QueryBuilder';
 import { QueryGrammar } from '../query/grammars/QueryGrammar';
 import { Collection } from './Collection';
 import { ModelCollection } from './ModelCollection';
+import { ModelNotFoundException } from './ModelNotFoundException';
 import { Paginator, SimplePaginator } from './Paginator';
 import { EagerLoader, EagerConstraint, EagerLoadMap } from './EagerLoader';
 import { ModelMetadata } from './ModelMetadata';
@@ -1309,7 +1310,7 @@ export class ModelBuilder<T extends object> {
   async firstOrFail(): Promise<T> {
     const instance = await this.first();
     if (!instance) {
-      throw new Error(`[orion] No query results for model [${(this.modelClass as any).name}].`);
+      throw new ModelNotFoundException((this.modelClass as any).name);
     }
     return instance;
   }
@@ -1326,9 +1327,7 @@ export class ModelBuilder<T extends object> {
   async findOrFail(id: unknown, columns: string[] = ['*']): Promise<T> {
     const instance = await this.find(id, columns);
     if (!instance) {
-      throw new Error(
-        `[orion] No query results for model [${(this.modelClass as any).name}] with key ${id}.`
-      );
+      throw new ModelNotFoundException((this.modelClass as any).name, id);
     }
     return instance;
   }
