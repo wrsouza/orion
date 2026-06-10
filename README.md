@@ -20,6 +20,7 @@ class User extends Model {
 
   declare name: string;
   declare email: string;
+  declare active: boolean;
 
   @map('created_at')
   declare createdAt: Date;
