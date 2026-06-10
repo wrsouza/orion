@@ -49,10 +49,10 @@ npm install @wrsouza/orion pg
 ```
 
 ```ts
-import { ConnectionManager, Model, table, casts } from '@wrsouza/orion';
+import { createConnection, Model, table, casts } from '@wrsouza/orion';
 
-// Connect
-ConnectionManager.addConnectionUrl('default', process.env.DATABASE_URL!);
+// Connect (src/database.ts)
+createConnection({ connection: process.env.DATABASE_URL });
 
 // Define a model
 @table('users')
