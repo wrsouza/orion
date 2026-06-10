@@ -18,6 +18,7 @@ import { MorphTo } from './relations/MorphTo';
 import { MorphToMany } from './relations/MorphToMany';
 import { MorphedByMany } from './relations/MorphedByMany';
 import type { EagerConstraint } from './EagerLoader';
+import { Paginator, SimplePaginator } from './Paginator';
 
 // ── Utility types ─────────────────────────────────────────────────────────
 
@@ -330,6 +331,43 @@ export class Model {
   /** Return all rows as a `Collection<T>`. */
   static async all<T extends Model>(this: ModelSubclass<T>): Promise<Collection<T>> {
     return this.query<T>().get();
+  }
+
+  /** Paginate all rows. */
+  static async paginate<T extends Model>(
+    this: ModelSubclass<T>,
+    page = 1,
+    perPage = 15
+  ): Promise<Paginator<T>> {
+    return this.query<T>().paginate(perPage, page);
+  }
+
+  /** Paginate all rows without total count (next/previous only). */
+  static async simplePaginate<T extends Model>(
+    this: ModelSubclass<T>,
+    page = 1,
+    perPage = 15
+  ): Promise<SimplePaginator<T>> {
+    return this.query<T>().simplePaginate(perPage, page);
+  }
+
+  /** Execute `callback` for each chunk of `size` model instances. */
+  static async chunk<T extends Model>(
+    this: ModelSubclass<T>,
+    size: number,
+    callback: (items: Collection<T>) => Promise<boolean | void> | boolean | void
+  ): Promise<void> {
+    return this.query<T>().chunk(size, callback);
+  }
+
+  /** Async generator that yields one model instance at a time. */
+  static cursor<T extends Model>(this: ModelSubclass<T>): AsyncGenerator<T> {
+    return this.query<T>().cursor();
+  }
+
+  /** Async generator that yields model instances in batches of `size`. */
+  static lazy<T extends Model>(this: ModelSubclass<T>, size = 1000): AsyncGenerator<T> {
+    return this.query<T>().lazy(size);
   }
 
   /** Start a WHERE clause. Supports equality shorthand and explicit operator. */
