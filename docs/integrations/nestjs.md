@@ -122,7 +122,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @Injectable()
 export class UsersService {
   async findAll(page = 1, perPage = 15) {
-    return User.paginate(page, perPage);
+    return User.paginate(perPage, page);
   }
 
   async findOne(id: string) {
@@ -222,18 +222,50 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {}
 
 ## Exception Filter
 
-For a global mapping of `ModelNotFoundException` to 404 (instead of handling it per-service):
+Use a single global filter to map all Orion exceptions to HTTP responses. See [Error Handling](/error-handling) for full details on each exception.
 
 ```ts
 // src/filters/orion-exception.filter.ts
-import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
-import { ModelNotFoundException } from '@wrsouza/orion';
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpStatus,
+} from '@nestjs/common';
+import {
+  ModelNotFoundException,
+  MassAssignmentException,
+  QueryException,
+} from '@wrsouza/orion';
 import { Response } from 'express';
 
-@Catch(ModelNotFoundException)
+@Catch(ModelNotFoundException, MassAssignmentException, QueryException)
 export class OrionExceptionFilter implements ExceptionFilter {
-  catch(_exception: ModelNotFoundException, host: ArgumentsHost) {
-    host.switchToHttp().getResponse<Response>().status(404).json({ error: 'Not found' });
+  catch(
+    exception: ModelNotFoundException | MassAssignmentException | QueryException,
+    host: ArgumentsHost,
+  ) {
+    const res = host.switchToHttp().getResponse<Response>();
+
+    if (exception instanceof ModelNotFoundException) {
+      return res.status(HttpStatus.NOT_FOUND).json({ error: 'Not found' });
+    }
+
+    if (exception instanceof MassAssignmentException) {
+      return res
+        .status(HttpStatus.UNPROCESSABLE_ENTITY)
+        .json({ error: exception.message });
+    }
+
+    if (exception instanceof QueryException) {
+      const isUnique = (exception.cause as any).code === '23505';
+      if (isUnique) {
+        return res.status(HttpStatus.CONFLICT).json({ error: 'Already exists' });
+      }
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ error: 'Database error' });
+    }
   }
 }
 ```

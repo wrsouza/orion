@@ -337,8 +337,8 @@ export class Model {
   /** Paginate all rows. */
   static async paginate<T extends Model>(
     this: ModelSubclass<T>,
-    page = 1,
-    perPage = 15
+    perPage = 15,
+    page = 1
   ): Promise<Paginator<T>> {
     return this.query<T>().paginate(perPage, page);
   }
@@ -346,8 +346,8 @@ export class Model {
   /** Paginate all rows without total count (next/previous only). */
   static async simplePaginate<T extends Model>(
     this: ModelSubclass<T>,
-    page = 1,
-    perPage = 15
+    perPage = 15,
+    page = 1
   ): Promise<SimplePaginator<T>> {
     return this.query<T>().simplePaginate(perPage, page);
   }

@@ -97,7 +97,7 @@ export async function GET(request: Request) {
   const page    = Number(searchParams.get('page')    ?? 1);
   const perPage = Number(searchParams.get('perPage') ?? 15);
 
-  const users = await User.paginate(page, perPage);
+  const users = await User.paginate(perPage, page);
   return NextResponse.json(users);
 }
 

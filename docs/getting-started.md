@@ -347,6 +347,34 @@ const user = await User.create({ name: 'Alice', email: 'alice@example.com' });
 // passing an unknown key → TypeScript compile error
 ```
 
+Use `@fillable` to restrict which attributes may be mass-assigned at runtime:
+
+```ts
+import { fillable } from '@wrsouza/orion';
+
+@table('users')
+@fillable(['name', 'email'])
+class User extends Model {}
+```
+
+Enable strict mode to throw `MassAssignmentException` when a non-fillable key is passed:
+
+```ts
+import { Model, MassAssignmentException } from '@wrsouza/orion';
+
+Model.preventSilentlyDiscardingAttributes();
+
+try {
+  await User.create({ name: 'Alice', role: 'admin' }); // 'role' not fillable
+} catch (e) {
+  if (e instanceof MassAssignmentException) {
+    // [orion] Add [role] to fillable on [User] to allow mass assignment.
+  }
+}
+```
+
+See [Error Handling](/error-handling) for details on `MassAssignmentException` and all other Orion exceptions.
+
 Use `@hidden` to exclude sensitive fields from JSON serialization:
 
 ```ts

@@ -96,7 +96,7 @@ export async function userRoutes(app: FastifyInstance) {
   // GET /users?page=1&perPage=15
   app.get('/', async (request: FastifyRequest<{ Querystring: { page?: number; perPage?: number } }>) => {
     const { page = 1, perPage = 15 } = request.query;
-    return User.paginate(page, perPage);
+    return User.paginate(perPage, page);
   });
 
   // GET /users/:id
@@ -143,15 +143,30 @@ export async function userRoutes(app: FastifyInstance) {
 
 ## Error Handling
 
-Register a global error handler in `server.ts` to map Orion exceptions to HTTP responses:
+Register a global error handler in `server.ts` to map Orion exceptions to HTTP responses. See [Error Handling](/error-handling) for full details on each exception.
 
 ```ts
 // src/server.ts (add after app creation)
-import { ModelNotFoundException } from '@wrsouza/orion';
+import {
+  ModelNotFoundException,
+  MassAssignmentException,
+  QueryException,
+} from '@wrsouza/orion';
 
 app.setErrorHandler((err, _request, reply) => {
   if (err instanceof ModelNotFoundException) {
     return reply.status(404).send({ error: 'Not found' });
+  }
+
+  if (err instanceof MassAssignmentException) {
+    return reply.status(422).send({ error: err.message });
+  }
+
+  if (err instanceof QueryException) {
+    const isUnique = (err.cause as any).code === '23505';
+    if (isUnique) return reply.status(409).send({ error: 'Already exists' });
+    app.log.error({ sql: err.sql, cause: err.cause.message });
+    return reply.status(500).send({ error: 'Database error' });
   }
 
   app.log.error(err);

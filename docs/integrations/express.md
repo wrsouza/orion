@@ -103,7 +103,7 @@ export const userRouter = Router();
 userRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { page = 1, perPage = 15 } = req.query;
-    const users = await User.paginate(Number(page), Number(perPage));
+    const users = await User.paginate(Number(perPage), Number(page));
     res.json(users);
   } catch (err) {
     next(err);
@@ -157,16 +157,31 @@ userRouter.delete('/:id', async (req: Request, res: Response, next: NextFunction
 
 ## Error Handling
 
-`findOrFail()` throws `ModelNotFoundException` when the record does not exist. Map it to a 404 in a central error handler:
+Map Orion exceptions to HTTP responses in a central error handler. See [Error Handling](/error-handling) for full details on each exception.
 
 ```ts
 // src/middleware/errorHandler.ts
 import { Request, Response, NextFunction } from 'express';
-import { ModelNotFoundException } from '@wrsouza/orion';
+import {
+  ModelNotFoundException,
+  MassAssignmentException,
+  QueryException,
+} from '@wrsouza/orion';
 
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
   if (err instanceof ModelNotFoundException) {
     return res.status(404).json({ error: 'Not found' });
+  }
+
+  if (err instanceof MassAssignmentException) {
+    return res.status(422).json({ error: err.message });
+  }
+
+  if (err instanceof QueryException) {
+    const isUnique = (err.cause as any).code === '23505';
+    if (isUnique) return res.status(409).json({ error: 'Already exists' });
+    console.error('[db]', err.sql, err.cause.message);
+    return res.status(500).json({ error: 'Database error' });
   }
 
   console.error(err);

@@ -97,7 +97,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const page    = Number(url.searchParams.get('page')    ?? 1);
   const perPage = Number(url.searchParams.get('perPage') ?? 15);
 
-  const result = await User.paginate(page, perPage);
+  const result = await User.paginate(perPage, page);
   return result;
 };
 
