@@ -28,6 +28,19 @@ All five methods now delegate to their `ModelBuilder` equivalents and are callab
 - Extends `Error` with `name = 'ModelNotFoundException'` for precise `catch` handling
 - Message includes the model name and, for `findOrFail`, the key that was not found
 
+#### `MassAssignmentException`
+
+- New `MassAssignmentException` class exported from `@wrsouza/orion`
+- Thrown when attempting to fill a non-fillable attribute with strict mass assignment enabled
+- Carries the attribute key and model name for clear error messages
+
+#### `QueryException`
+
+- New `QueryException` class exported from `@wrsouza/orion`
+- Thrown by any query execution failure (constraint violations, syntax errors, connection drops, etc.)
+- Wraps the original driver error and exposes `sql`, `bindings`, and `cause` for debugging
+- All `QueryBuilder` execution methods (`get`, `insert`, `update`, `delete`, `upsert`, `truncate`, aggregates, cursor) now route through a central `runQuery` that catches and wraps driver errors
+
 ---
 
 ## [0.4.0] — 2026-06-09

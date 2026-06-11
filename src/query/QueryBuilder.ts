@@ -1,8 +1,9 @@
-import { Connection } from '../connection/Connection';
+import { Connection, QueryResult } from '../connection/Connection';
 import { Expression } from './Expression';
 import { JoinClause, JoinType } from './JoinClause';
 import { PostgresQueryGrammar } from './grammars/PostgresQueryGrammar';
 import { QueryGrammar } from './grammars/QueryGrammar';
+import { QueryException } from './QueryException';
 
 // ── Internal state types ───────────────────────────────────────────────────
 
@@ -488,10 +489,18 @@ export class QueryBuilder {
 
   // ── EXECUTION — READ ──────────────────────────────────────────────────────
 
+  private async runQuery(sql: string, bindings: unknown[]): Promise<QueryResult> {
+    try {
+      return await this.connection.query(sql, bindings);
+    } catch (err) {
+      throw new QueryException(sql, bindings, err instanceof Error ? err : new Error(String(err)));
+    }
+  }
+
   /** Execute the query and return all matching rows. */
   async get(): Promise<Record<string, unknown>[]> {
     const { sql, bindings } = this.grammar.compileSelect(this);
-    const result = await this.connection.query(sql, bindings);
+    const result = await this.runQuery(sql, bindings);
     return result.rows;
   }
 
@@ -540,7 +549,7 @@ export class QueryBuilder {
     const { sql, bindings } = this.grammar.compileSelect(
       this.clone().select(new Expression('1')).limit(1)
     );
-    const result = await this.connection.query(sql, bindings);
+    const result = await this.runQuery(sql, bindings);
     return result.rowCount > 0;
   }
 
@@ -583,7 +592,7 @@ export class QueryBuilder {
    */
   async *cursor(): AsyncGenerator<Record<string, unknown>> {
     const { sql, bindings } = this.grammar.compileSelect(this);
-    const result = await this.connection.query(sql, bindings);
+    const result = await this.runQuery(sql, bindings);
     for (const row of result.rows) {
       yield row;
     }
@@ -618,7 +627,7 @@ export class QueryBuilder {
 
   private async runAggregate(fn: string, column: string): Promise<number> {
     const { sql, bindings } = this.grammar.compileAggregate(this, fn, column);
-    const result = await this.connection.query(sql, bindings);
+    const result = await this.runQuery(sql, bindings);
     const val = result.rows[0]?.['aggregate'];
     return val === null || val === undefined ? 0 : Number(val);
   }
@@ -632,7 +641,7 @@ export class QueryBuilder {
   async insert(values: Record<string, unknown> | Record<string, unknown>[]): Promise<number> {
     const rows = Array.isArray(values) ? values : [values];
     const { sql, bindings } = this.grammar.compileInsert(this, rows);
-    const result = await this.connection.query(sql, bindings);
+    const result = await this.runQuery(sql, bindings);
     return result.rowCount;
   }
 
@@ -641,7 +650,7 @@ export class QueryBuilder {
    */
   async insertGetId(values: Record<string, unknown>): Promise<unknown> {
     const { sql, bindings } = this.grammar.compileInsertGetId(this, values);
-    const result = await this.connection.query(sql, bindings);
+    const result = await this.runQuery(sql, bindings);
     return result.rows[0]?.[this.primaryKey] ?? result.lastInsertRowid ?? null;
   }
 
@@ -653,7 +662,7 @@ export class QueryBuilder {
   ): Promise<number> {
     const rows = Array.isArray(values) ? values : [values];
     const { sql, bindings } = this.grammar.compileInsertOrIgnore(this, rows);
-    const result = await this.connection.query(sql, bindings);
+    const result = await this.runQuery(sql, bindings);
     return result.rowCount;
   }
 
@@ -669,7 +678,7 @@ export class QueryBuilder {
     updateColumns: string[]
   ): Promise<number> {
     const { sql, bindings } = this.grammar.compileUpsert(this, values, uniqueBy, updateColumns);
-    const result = await this.connection.query(sql, bindings);
+    const result = await this.runQuery(sql, bindings);
     return result.rowCount;
   }
 
@@ -679,7 +688,7 @@ export class QueryBuilder {
    */
   async update(values: Record<string, unknown>): Promise<number> {
     const { sql, bindings } = this.grammar.compileUpdate(this, values);
-    const result = await this.connection.query(sql, bindings);
+    const result = await this.runQuery(sql, bindings);
     return result.rowCount;
   }
 
@@ -716,7 +725,7 @@ export class QueryBuilder {
    */
   async delete(): Promise<number> {
     const { sql, bindings } = this.grammar.compileDelete(this);
-    const result = await this.connection.query(sql, bindings);
+    const result = await this.runQuery(sql, bindings);
     return result.rowCount;
   }
 
@@ -726,7 +735,7 @@ export class QueryBuilder {
    */
   async truncate(): Promise<void> {
     const { sql, bindings } = this.grammar.compileTruncate(this.fromTable as string);
-    await this.connection.query(sql, bindings);
+    await this.runQuery(sql, bindings);
   }
 
   // ── INTROSPECTION ─────────────────────────────────────────────────────────

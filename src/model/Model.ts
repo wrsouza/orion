@@ -19,6 +19,7 @@ import { MorphToMany } from './relations/MorphToMany';
 import { MorphedByMany } from './relations/MorphedByMany';
 import type { EagerConstraint } from './EagerLoader';
 import { Paginator, SimplePaginator } from './Paginator';
+import { MassAssignmentException } from './MassAssignmentException';
 
 // ── Utility types ─────────────────────────────────────────────────────────
 
@@ -1153,9 +1154,7 @@ export class Model {
         const colName = cfg.columnMap.get(key) ?? key;
         this._attributes[colName] = value;
       } else if (Model._strictMassAssign) {
-        throw new Error(
-          `[orion] Add [${key}] to fillable on [${this.constructor.name}] to allow mass assignment.`
-        );
+        throw new MassAssignmentException(key, this.constructor.name);
       }
     }
 

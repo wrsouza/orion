@@ -57,6 +57,8 @@ export { Collection } from './model/Collection';
 export { ModelCollection } from './model/ModelCollection';
 export { Paginator, SimplePaginator } from './model/Paginator';
 export { ModelNotFoundException } from './model/ModelNotFoundException';
+export { MassAssignmentException } from './model/MassAssignmentException';
+export { QueryException } from './query/QueryException';
 export { ModelMetadata, ModelConfig, CastType, Cast } from './model/ModelMetadata';
 export { table, withoutTimestamps } from './model/decorators/table';
 export { fillable, guarded } from './model/decorators/fillable';
